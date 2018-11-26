@@ -68,16 +68,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "derive_test"
-version = "0.1.0"
-dependencies = [
- "cssparser 0.25.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "selectors 0.20.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "unhtml 0.1.0",
- "unhtml_derive 0.1.0",
-]
-
-[[package]]
 name = "dtoa"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -454,17 +444,19 @@ name = "unhtml"
 version = "0.1.0"
 dependencies = [
  "cssparser 0.25.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "selectors 0.20.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "unhtml_derive"
-version = "0.1.0"
-dependencies = [
  "proc-macro2 0.4.24 (registry+https://github.com/rust-lang/crates.io-index)",
  "quote 0.6.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "scraper 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "selectors 0.20.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "syn 0.15.22 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "unhtml_test"
+version = "0.1.0"
+dependencies = [
+ "cssparser 0.25.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "selectors 0.20.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "unhtml 0.1.0",
 ]
 

@@ -4,6 +4,13 @@ version = "0.1.0"
 authors = ["Hexilee <hexileee@gmail.com>"]
 edition = "2018"
 
+[lib]
+proc-macro = true
+
 [dependencies]
+scraper = "0.8.1"
+syn = "0.15.22"
+quote = "0.6.10"
+proc-macro2 = "0.4.24"
 cssparser = "0.25.1"
 selectors = "0.20.0"

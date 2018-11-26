@@ -12,6 +12,7 @@ pub fn impl_un_html(ast: &syn::DeriveInput) -> TokenStream {
                 Fields::Named(ref fields) => {
                     fields.named.iter().map(|field| {
                         let name = &field.ident;
+//                        if let Some(ref html_attr) = field.attrs.iter().find(|attr| attr.)
                         quote_spanned! { field.span() =>
                             #name: "Hello, World"
                         }
@@ -23,8 +24,10 @@ pub fn impl_un_html(ast: &syn::DeriveInput) -> TokenStream {
         Data::Enum(_) | Data::Union(_) => unimplemented!(),
     };
     quote! {
-        impl UnHtml for #struct_name {
-            fn from_str(data: &str) -> Result<Self, cssparser::ParseError<SelectorParseErrorKind>> {
+        #ast
+        impl std::str::FromStr for #struct_name {
+            type Err = Box<std::error::Error>;
+            fn from_str(data: &str) -> Result<Self, Self::Err> {
                 Ok(#struct_name{#(#result_recurse), *})
             }
         }

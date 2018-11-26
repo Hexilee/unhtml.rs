@@ -1,6 +1,5 @@
 [workspace]
 members = [
     "unhtml",
-    "unhtml_derive",
-    "derive_test",
+    "unhtml_test",
 ]
