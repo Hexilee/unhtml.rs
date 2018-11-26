@@ -1,5 +1,4 @@
 use scraper::Selector;
-use unhtml::traits::UnHtml;
 use syn::spanned::Spanned;
 use syn::Data;
 use syn::Fields;
@@ -14,7 +13,7 @@ pub fn impl_un_html(ast: &syn::DeriveInput) -> TokenStream {
                     fields.named.iter().map(|field| {
                         let name = &field.ident;
                         quote_spanned! { field.span() =>
-                            #name: ""
+                            #name: "Hello, World"
                         }
                     })
                 }
@@ -25,8 +24,8 @@ pub fn impl_un_html(ast: &syn::DeriveInput) -> TokenStream {
     };
     quote! {
         impl UnHtml for #struct_name {
-            fn from_str(data: &str) -> Result<Box<Self>, cssparser::ParseError<SelectorParseErrorKind>> {
-                Ok(Box::new(#struct_name{#(#result_recurse), *}))
+            fn from_str(data: &str) -> Result<Self, cssparser::ParseError<SelectorParseErrorKind>> {
+                Ok(#struct_name{#(#result_recurse), *})
             }
         }
     }

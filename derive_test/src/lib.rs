@@ -10,5 +10,5 @@ mod test;
 
 #[derive(UnHtml)]
 struct User {
-    name: String
+    name: &'static str
 }
