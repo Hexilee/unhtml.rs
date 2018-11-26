@@ -11,3 +11,4 @@ proc-macro = true
 scraper = "0.8.1"
 syn = "0.11.11"
 quote = "0.3.15"
+unhtml = { path = "../unhtml" }

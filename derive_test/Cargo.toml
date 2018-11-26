@@ -1,9 +1,11 @@
 [package]
-name = "unhtml"
+name = "derive_test"
 version = "0.1.0"
 authors = ["Hexilee <hexileee@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+unhtml = { path = "../unhtml" }
+unhtml_derive = { path = "../unhtml_derive" }
 cssparser = "0.25.1"
 selectors = "0.20.0"

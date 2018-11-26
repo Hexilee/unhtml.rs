@@ -2,4 +2,5 @@
 members = [
     "unhtml",
     "unhtml_derive",
+    "derive_test",
 ]
