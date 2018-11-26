@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "unhtml",
+    "unhtml_derive",
+]

@@ -1,0 +1,9 @@
+[package]
+name = "unhtml"
+version = "0.1.0"
+authors = ["Hexilee <hexileee@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+cssparser = "0.25.1"
+selectors = "0.20.0"
