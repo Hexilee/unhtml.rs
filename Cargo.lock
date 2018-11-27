@@ -449,6 +449,7 @@ dependencies = [
  "scraper 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "selectors 0.20.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "syn 0.15.22 (registry+https://github.com/rust-lang/crates.io-index)",
+ "unhtml_util 0.1.0",
 ]
 
 [[package]]
@@ -458,6 +459,16 @@ dependencies = [
  "cssparser 0.25.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "selectors 0.20.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "unhtml 0.1.0",
+ "unhtml_util 0.1.0",
+]
+
+[[package]]
+name = "unhtml_util"
+version = "0.1.0"
+dependencies = [
+ "cssparser 0.25.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "scraper 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "selectors 0.20.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

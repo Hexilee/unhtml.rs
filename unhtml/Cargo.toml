@@ -14,3 +14,4 @@ quote = "0.6.10"
 proc-macro2 = "0.4.24"
 cssparser = "0.25.1"
 selectors = "0.20.0"
+unhtml_util = { path = "../unhtml_util" }

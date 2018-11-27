@@ -9,6 +9,7 @@ extern crate quote;
 
 extern crate cssparser;
 extern crate selectors;
+extern crate unhtml_util;
 
 #[cfg(test)]
 mod test;

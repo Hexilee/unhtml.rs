@@ -1,11 +1,10 @@
 [package]
-name = "unhtml_test"
+name = "unhtml_util"
 version = "0.1.0"
 authors = ["Hexilee <hexileee@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-unhtml = { path = "../unhtml" }
-unhtml_util = { path = "../unhtml_util" }
 cssparser = "0.25.1"
 selectors = "0.20.0"
+scraper = "0.8.1"

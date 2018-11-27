@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "unhtml",
+    "unhtml_util",
     "unhtml_test",
 ]

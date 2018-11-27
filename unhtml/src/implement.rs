@@ -8,14 +8,7 @@ use proc_macro2::TokenTree;
 use syn::ItemStruct;
 use std::str::FromStr;
 use proc_macro2::Literal;
-
-const HTML_IDENT: &str = "html";
-const SELECTOR_IDENT: &str = "selector";
-const ATTR_IDENT: &str = "attr";
-const DEFAULT_IDENT: &str = "default";
-const EQUAL_PUNCT: char = '=';
-const ROOT_SELECTOR: &str = "root";
-const ATTR_INNER_HTML: &str = "inner_html";
+use unhtml_util::*;
 
 pub fn impl_un_html(ast: &syn::ItemStruct) -> TokenStream {
 //    let a = scraper::Html::parse_document("").select(&scraper::Selector::parse("a").unwrap()).next().unwrap().inner_html();
@@ -38,7 +31,7 @@ pub fn impl_un_html(ast: &syn::ItemStruct) -> TokenStream {
     quote! {
         #ast
         impl std::str::FromStr for #struct_name {
-            type Err = Box<std::error::Error>;
+            type Err = ParseError;
             fn from_str(data: &str) -> Result<Self, Self::Err> {
                 Ok(#struct_name{#(#result_recurse),*})
             }
