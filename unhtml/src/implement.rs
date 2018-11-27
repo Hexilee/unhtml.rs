@@ -7,6 +7,7 @@ use proc_macro2::TokenStream;
 use proc_macro2::TokenTree;
 use syn::ItemStruct;
 use std::str::FromStr;
+use proc_macro2::Literal;
 
 const HTML_IDENT: &str = "html";
 const SELECTOR_IDENT: &str = "selector";
@@ -47,13 +48,13 @@ pub fn impl_un_html(ast: &syn::ItemStruct) -> TokenStream {
 
 #[derive(Debug)]
 struct MacroAttr {
-    selector: String,
-    attr: String,
+    selector: TokenTree,
+    attr: TokenTree,
     default: Option<TokenTree>,
 }
 
 fn get_macro_attr(attrs: &Vec<Attribute>) -> MacroAttr {
-    let mut macro_attr = MacroAttr { selector: ROOT_SELECTOR.to_string(), attr: ATTR_INNER_HTML.to_string(), default: None };
+    let mut macro_attr = MacroAttr { selector: TokenTree::Literal(Literal::string(ROOT_SELECTOR)), attr: TokenTree::Literal(Literal::string(ATTR_INNER_HTML)), default: None };
     if let Some(ref html_attr) = attrs.iter().find(|attr| attr.style == AttrStyle::Outer && attr.path.segments.first().unwrap().value().ident.to_string() == HTML_IDENT) {
         if let Some(ref token_tree) = html_attr.tts.to_owned().into_iter().find(|token_tree| if let TokenTree::Group(_) = *token_tree { true } else { false }) {
             if let TokenTree::Group(ref group) = *token_tree {
@@ -64,8 +65,8 @@ fn get_macro_attr(attrs: &Vec<Attribute>) -> MacroAttr {
                         if ident.eq(SELECTOR_IDENT) {
                             if let Some(TokenTree::Punct(ref punct)) = iter_ref.next() {
                                 if punct.as_char() == EQUAL_PUNCT {
-                                    if let Some(TokenTree::Literal(ref lit)) = iter_ref.next() {
-                                        macro_attr.selector = (*lit).to_string();
+                                    if let Some(lit) = iter_ref.next() {
+                                        macro_attr.selector = lit;
                                     }
                                 }
                             }
@@ -75,8 +76,8 @@ fn get_macro_attr(attrs: &Vec<Attribute>) -> MacroAttr {
                         if ident.eq(ATTR_IDENT) {
                             if let Some(TokenTree::Punct(ref punct)) = iter_ref.next() {
                                 if punct.as_char() == EQUAL_PUNCT {
-                                    if let Some(TokenTree::Literal(ref lit)) = iter_ref.next() {
-                                        macro_attr.attr = (*lit).to_string();
+                                    if let Some(lit) = iter_ref.next() {
+                                        macro_attr.attr = lit;
                                     }
                                 }
                             }
