@@ -8,10 +8,10 @@ use unhtml::unhtml;
 mod test;
 
 #[unhtml]
-#[html(selector = "#test")]
+#[selector = "#test"]
 struct User {
     #[html(selector = "#test", default = "Hexilee")]
-    name: &'static str,
+    name: String,
 
     #[html(selector = "#test", default = 20)]
     age: u8,

@@ -13,10 +13,10 @@ extern crate selectors;
 #[cfg(test)]
 mod test;
 mod implement;
-use syn::DeriveInput;
+use syn::ItemStruct;
 
 #[proc_macro_attribute]
 pub fn unhtml(_args: proc_macro::TokenStream, input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
+    let input = parse_macro_input!(input as ItemStruct);
     proc_macro::TokenStream::from(implement::impl_un_html(&input))
 }

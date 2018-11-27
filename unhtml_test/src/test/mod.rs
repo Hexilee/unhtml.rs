@@ -1,5 +1,6 @@
 use super::User;
 use super::UnHtml;
+use std::str::FromStr;
 
 #[test]
 fn it_works() {
