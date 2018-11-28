@@ -1,8 +1,9 @@
 #![feature(custom_attribute)]
 
 extern crate unhtml;
-
+extern crate unhtml_util;
 use unhtml::unhtml;
+use unhtml_util::*;
 
 #[cfg(test)]
 mod test;

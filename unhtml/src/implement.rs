@@ -11,12 +11,10 @@ use proc_macro2::Literal;
 use unhtml_util::*;
 
 pub fn impl_un_html(ast: &syn::ItemStruct) -> TokenStream {
-//    let a = scraper::Html::parse_document("").select(&scraper::Selector::parse("a").unwrap()).next().unwrap().inner_html();
     let struct_name = &ast.ident;
     let result_recurse = match ast.fields {
         Fields::Named(ref fields) => {
             fields.named.iter().map(|field| -> TokenStream {
-//                println!("{:?}", field.ty);
                 let name = &field.ident;
                 let macro_attr = get_macro_attr(&field.attrs);
                 println!("{:?}", &macro_attr);
