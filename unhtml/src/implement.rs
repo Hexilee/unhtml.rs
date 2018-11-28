@@ -1,11 +1,8 @@
 use scraper::Selector;
 use syn::spanned::Spanned;
-use syn::Fields;
-use syn::AttrStyle;
-use syn::Attribute;
+use syn::{Fields, AttrStyle, Lit, Attribute, ItemStruct};
 use proc_macro2::TokenStream;
 use proc_macro2::TokenTree;
-use syn::ItemStruct;
 use std::str::FromStr;
 use proc_macro2::Literal;
 use unhtml_util::*;
@@ -18,9 +15,7 @@ pub fn impl_un_html(ast: &syn::ItemStruct) -> TokenStream {
                 let name = &field.ident;
                 let macro_attr = get_macro_attr(&field.attrs);
                 println!("{:?}", &macro_attr);
-                quote_spanned! { field.span() =>
-                            #name: "Hello, World"
-                        }
+                quote! {#name: "Hello, World"}
             })
         }
         Fields::Unnamed(_) | Fields::Unit => unreachable!(),
@@ -39,49 +34,26 @@ pub fn impl_un_html(ast: &syn::ItemStruct) -> TokenStream {
 
 #[derive(Debug)]
 struct MacroAttr {
-    selector: Option<TokenTree>,
-    attr: Option<TokenTree>,
-    default: Option<TokenTree>,
+    selector: Option<Lit>,
+    attr: Option<Lit>,
+    default: Option<Lit>,
 }
 
 fn get_macro_attr(attrs: &Vec<Attribute>) -> MacroAttr {
     let mut macro_attr = MacroAttr { selector: None, attr: None, default: None };
-    if let Some(ref html_attr) = attrs.iter().find(|attr| attr.style == AttrStyle::Outer && attr.path.segments.first().unwrap().value().ident.to_string() == HTML_IDENT) {
-        if let Some(ref token_tree) = html_attr.tts.to_owned().into_iter().find(|token_tree| if let TokenTree::Group(_) = *token_tree { true } else { false }) {
-            if let TokenTree::Group(ref group) = *token_tree {
-                let mut iter = group.stream().to_owned().into_iter();
-                let iter_ref = &mut iter;
-                while let Some(ref token_tree) = iter_ref.next() {
-                    if let TokenTree::Ident(ref ident) = *token_tree {
-                        if ident.eq(SELECTOR_IDENT) {
-                            if let Some(TokenTree::Punct(ref punct)) = iter_ref.next() {
-                                if punct.as_char() == EQUAL_PUNCT {
-                                    if let Some(lit) = iter_ref.next() {
-                                        macro_attr.selector = Some(lit);
-                                    }
-                                }
+    for attr in attrs {
+        if let Ok(meta) = attr.parse_meta() {
+            if meta.name() == HTML_IDENT {
+                if let syn::Meta::List(ref list) = meta {
+                    for ref pair in list.nested.pairs() {
+                        if let &&syn::NestedMeta::Meta(syn::Meta::NameValue(ref name_value)) = pair.value() {
+                            if name_value.ident == SELECTOR_IDENT {
+                                macro_attr.selector = Some(name_value.lit.to_owned());
+                            } else if name_value.ident == ATTR_IDENT {
+                                macro_attr.attr = Some(name_value.lit.to_owned());
+                            } else if name_value.ident == DEFAULT_IDENT {
+                                macro_attr.default = Some(name_value.lit.to_owned());
                             }
-                            continue;
-                        }
-
-                        if ident.eq(ATTR_IDENT) {
-                            if let Some(TokenTree::Punct(ref punct)) = iter_ref.next() {
-                                if punct.as_char() == EQUAL_PUNCT {
-                                    if let Some(lit) = iter_ref.next() {
-                                        macro_attr.attr = Some(lit);
-                                    }
-                                }
-                            }
-                            continue;
-                        }
-
-                        if ident.eq(DEFAULT_IDENT) {
-                            if let Some(TokenTree::Punct(ref punct)) = iter_ref.next() {
-                                if punct.as_char() == EQUAL_PUNCT {
-                                    macro_attr.default = iter_ref.next();
-                                }
-                            }
-                            continue;
                         }
                     }
                 }
