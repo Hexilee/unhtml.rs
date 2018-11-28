@@ -1,10 +1,8 @@
-use std::collections::LinkedList;
 use scraper::Selector;
 use scraper::ElementRef;
-use scraper::element_ref::Select;
+use scraper::html::Select;
 use std::str::FromStr;
 use failure::Error;
-use std::collections::linked_list::IntoIter;
 use super::err::ParseError;
 
 pub trait FromHtml {
@@ -59,64 +57,64 @@ pub trait FromHtml {
     }
 }
 
-pub trait IterFromHtml {
+pub trait VecFromHtml {
     type Err: std::error::Error + Send + Sync + 'static;
     type Elem: FromStr<Err=Self::Err> + 'static;
-    fn iter_from<Fun>(getter_fn: Fun) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>>
+    fn vec_from<Fun>(getter_fn: Fun) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>>
         where Fun: Fn(ElementRef) -> Result<Self::Elem, Error> + 'static + Copy {
         Box::new(move |selects| {
-            let mut list: LinkedList<Self::Elem> = LinkedList::new();
+            let mut list = Vec::new();
             for elem_ref in selects {
-                list.push_back(getter_fn(elem_ref)?);
+                list.push(getter_fn(elem_ref)?);
             }
-            Ok(list.into_iter())
+            Ok(list)
         })
     }
 
-    fn iter_from_single_attr<Fun>(string: &'static str, getter_fn: Fun) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>>
+    fn vec_from_single_attr<Fun>(string: &'static str, getter_fn: Fun) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>>
         where Fun: Fn(&'static str) -> Box<Fn(ElementRef) -> Result<Self::Elem, Error>> + 'static + Copy {
         Box::new(move |selects| {
-            let mut list: LinkedList<Self::Elem> = LinkedList::new();
+            let mut list = Vec::new();
             for elem_ref in selects {
-                list.push_back(getter_fn(string)(elem_ref)?);
+                list.push(getter_fn(string)(elem_ref)?);
             }
-            Ok(list.into_iter())
+            Ok(list)
         })
     }
 
-    fn iter_from_double_attr<Fun>(str_former: &'static str, str_latter: &'static str, getter_fn: Fun) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>>
+    fn vec_from_double_attr<Fun>(str_former: &'static str, str_latter: &'static str, getter_fn: Fun) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>>
         where Fun: Fn(&'static str, &'static str) -> Box<Fn(ElementRef) -> Result<Self::Elem, Error>> + 'static + Copy {
         Box::new(move |selects| {
-            let mut list: LinkedList<Self::Elem> = LinkedList::new();
+            let mut list = Vec::new();
             for elem_ref in selects {
-                list.push_back(getter_fn(str_former, str_latter)(elem_ref)?);
+                list.push(getter_fn(str_former, str_latter)(elem_ref)?);
             }
-            Ok(list.into_iter())
+            Ok(list)
         })
     }
 
-    fn iter_by_selector_and_attr(selector_str: &'static str, attr: &'static str) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>> {
-        Self::iter_from_double_attr(selector_str, attr, Self::Elem::get_elem_by_selector_and_attr)
+    fn vec_by_selector_and_attr(selector_str: &'static str, attr: &'static str) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>> {
+        Self::vec_from_double_attr(selector_str, attr, Self::Elem::get_elem_by_selector_and_attr)
     }
 
-    fn iter_selector_and_html(selector_str: &'static str) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>> {
-        Self::iter_from_single_attr(selector_str, Self::Elem::get_elem_by_selector_and_html)
+    fn vec_by_selector_and_html(selector_str: &'static str) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>> {
+        Self::vec_from_single_attr(selector_str, Self::Elem::get_elem_by_selector_and_html)
     }
 
-    fn iter_by_selector_and_inner_text(selector_str: &'static str) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>> {
-        Self::iter_from_single_attr(selector_str, Self::Elem::get_elem_by_selector_and_inner_text)
+    fn vec_by_selector_and_inner_text(selector_str: &'static str) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>> {
+        Self::vec_from_single_attr(selector_str, Self::Elem::get_elem_by_selector_and_inner_text)
     }
 
-    fn iter_by_attr(selector_str: &'static str) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>> {
-        Self::iter_from_single_attr(selector_str, Self::Elem::get_elem_by_attr)
+    fn vec_by_attr(selector_str: &'static str) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>> {
+        Self::vec_from_single_attr(selector_str, Self::Elem::get_elem_by_attr)
     }
 
-    fn iter_by_html(selects: Select) -> Result<IntoIter<Self::Elem>, Error> {
-        Self::iter_from(Self::Elem::get_elem_by_html)(selects)
+    fn vec_by_html(selects: Select) -> Result<Vec<Self::Elem>, Error> {
+        Self::vec_from(Self::Elem::get_elem_by_html)(selects)
     }
 
-    fn iter_by_inner_text(selects: Select) -> Result<IntoIter<Self::Elem>, Error> {
-        Self::iter_from(Self::Elem::get_elem_by_inner_text)(selects)
+    fn vec_by_inner_text(selects: Select) -> Result<Vec<Self::Elem>, Error> {
+        Self::vec_from(Self::Elem::get_elem_by_inner_text)(selects)
     }
 }
 
@@ -128,7 +126,7 @@ impl<E, T> FromHtml for T
     type Elem = T;
 }
 
-impl<E, T> IterFromHtml for T
+impl<E, T> VecFromHtml for T
     where E: std::error::Error + Send + Sync + 'static,
           T: FromStr<Err=E> + 'static {
     type Err = E;
