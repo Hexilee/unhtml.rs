@@ -5,8 +5,8 @@ authors = ["Hexilee <hexileee@gmail.com>"]
 edition = "2018"
 license = "MIT"
 description = "some utility traits and functions for unhtml"
-repository = "https://github.com/Hexilee/runhtml"
-keywords = ["runhtml", "html"]
+repository = "https://github.com/Hexilee/unhtml.rs"
+keywords = ["unhtml", "html"]
 categories = ["deserializer"]
 
 [dependencies]
