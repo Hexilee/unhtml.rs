@@ -88,7 +88,6 @@ pub trait VecFromHtml {
             let mut list = Vec::new();
             for elem_ref in selects {
                 list.push(getter_fn(str_former, str_latter)(elem_ref)?);
-                println!("push 1");
             }
             Ok(list)
         })
@@ -106,8 +105,8 @@ pub trait VecFromHtml {
         Self::vec_from_single_attr(selector_str, Self::Elem::get_elem_by_selector_and_inner_text)
     }
 
-    fn vec_by_attr(selector_str: &'static str) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>> {
-        Self::vec_from_single_attr(selector_str, Self::Elem::get_elem_by_attr)
+    fn vec_by_attr(attr: &'static str) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>> {
+        Self::vec_from_single_attr(attr, Self::Elem::get_elem_by_attr)
     }
 
     fn vec_by_html(selects: Select) -> Result<Vec<Self::Elem>, Error> {
