@@ -3,6 +3,11 @@ name = "unhtml_util"
 version = "0.1.0"
 authors = ["Hexilee <hexileee@gmail.com>"]
 edition = "2018"
+license = "MIT"
+description = "some utility traits and functions for unhtml"
+repository = "https://github.com/Hexilee/runhtml"
+keywords = ["runhtml", "html"]
+categories = ["deserializer"]
 
 [dependencies]
 cssparser = "0.25.1"
