@@ -14,5 +14,4 @@ pub const SELECTOR_IDENT: &str = "selector";
 pub const ATTR_IDENT: &str = "attr";
 pub const DEFAULT_IDENT: &str = "default";
 pub const EQUAL_PUNCT: char = '=';
-pub const ROOT_SELECTOR: &str = "root";
 pub const ATTR_INNER_TEXT: &str = "innerText";

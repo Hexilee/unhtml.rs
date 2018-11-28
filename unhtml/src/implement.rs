@@ -39,13 +39,13 @@ pub fn impl_un_html(ast: &syn::ItemStruct) -> TokenStream {
 
 #[derive(Debug)]
 struct MacroAttr {
-    selector: TokenTree,
-    attr: TokenTree,
+    selector: Option<TokenTree>,
+    attr: Option<TokenTree>,
     default: Option<TokenTree>,
 }
 
 fn get_macro_attr(attrs: &Vec<Attribute>) -> MacroAttr {
-    let mut macro_attr = MacroAttr { selector: TokenTree::Literal(Literal::string(ROOT_SELECTOR)), attr: TokenTree::Literal(Literal::string(ATTR_INNER_TEXT)), default: None };
+    let mut macro_attr = MacroAttr { selector: None, attr: None, default: None };
     if let Some(ref html_attr) = attrs.iter().find(|attr| attr.style == AttrStyle::Outer && attr.path.segments.first().unwrap().value().ident.to_string() == HTML_IDENT) {
         if let Some(ref token_tree) = html_attr.tts.to_owned().into_iter().find(|token_tree| if let TokenTree::Group(_) = *token_tree { true } else { false }) {
             if let TokenTree::Group(ref group) = *token_tree {
@@ -57,7 +57,7 @@ fn get_macro_attr(attrs: &Vec<Attribute>) -> MacroAttr {
                             if let Some(TokenTree::Punct(ref punct)) = iter_ref.next() {
                                 if punct.as_char() == EQUAL_PUNCT {
                                     if let Some(lit) = iter_ref.next() {
-                                        macro_attr.selector = lit;
+                                        macro_attr.selector = Some(lit);
                                     }
                                 }
                             }
@@ -68,7 +68,7 @@ fn get_macro_attr(attrs: &Vec<Attribute>) -> MacroAttr {
                             if let Some(TokenTree::Punct(ref punct)) = iter_ref.next() {
                                 if punct.as_char() == EQUAL_PUNCT {
                                     if let Some(lit) = iter_ref.next() {
-                                        macro_attr.attr = lit;
+                                        macro_attr.attr = Some(lit);
                                     }
                                 }
                             }
