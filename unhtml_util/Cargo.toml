@@ -7,7 +7,7 @@ license = "MIT"
 description = "some utility traits and functions for unhtml"
 repository = "https://github.com/Hexilee/unhtml.rs"
 keywords = ["unhtml", "html"]
-categories = ["deserializer"]
+categories = ["encoding"]
 
 [dependencies]
 scraper = "0.8.1"
