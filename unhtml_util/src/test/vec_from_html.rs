@@ -13,14 +13,20 @@ fn test_vec_by_selector_and_attr() {
 </head>
 <body>
     <div id="test">
-        <a href="1"></a>
-        <a href="2"></a>
-        <a href="3"></a>
+        <div>
+            <a href="1"></a>
+        </div>
+        <div>
+            <a href="2"></a>
+        </div>
+        <div>
+            <a href="3"></a>
+        </div>
     </div>
 </body>
 </html>
     "#);
-    let selector = Selector::parse("#test").unwrap();
+    let selector = Selector::parse("#test > div").unwrap();
     let results = u8::vec_by_selector_and_attr("a", "href")(html.select(&selector)).unwrap();
     assert_eq!(1u8, results[0]);
     assert_eq!(2u8, results[1]);
