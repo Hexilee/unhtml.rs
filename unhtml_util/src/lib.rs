@@ -1,3 +1,8 @@
+#![feature(custom_attribute)]
+extern crate failure;
+#[macro_use]
+extern crate failure_derive;
+
 pub mod err;
 
 pub const HTML_IDENT: &str = "html";
@@ -11,18 +16,21 @@ pub const ATTR_INNER_TEXT: &str = "innerText";
 pub use scraper::Selector;
 pub use scraper::Html;
 pub use scraper::ElementRef;
-pub use std::error::*;
 pub use std::str::FromStr;
+pub use failure::Error;
+use self::err::ParseError;
 
-pub fn get_elem_by_selector_and_attr<T: FromStr<ParseError>>(selector_str: &'static str, attr: &'static str) -> Box<Fn(ElementRef) -> Result<T, ParseError>> {
+pub fn get_elem_by_selector_and_attr<E, T>(selector_str: &'static str, attr: &'static str) -> Box<Fn(ElementRef) -> Result<T, Error>>
+    where E: std::error::Error + Send + Sync + 'static,
+          T: FromStr<Err=E> {
     let selector = Selector::parse(selector_str).unwrap();
     Box::new(move |elem: ElementRef| {
         let first_elem = elem.select(&selector).next().ok_or(
-            err::SelectOrAttrEmptyErr::new("selector", selector_str)
+            ParseError::SelectOrAttrEmptyErr { attr: "selector".to_string(), value: selector_str.to_string() }
         )?;
-        T::from_str(first_elem.value().attr(attr).ok_or(
-            err::SelectOrAttrEmptyErr::new("attr", attr)
-        )?)
+        Ok(T::from_str(first_elem.value().attr(attr).ok_or(
+            ParseError::SelectOrAttrEmptyErr { attr: "attr".to_string(), value: attr.to_string() }
+        )?)?)
     })
 }
 
