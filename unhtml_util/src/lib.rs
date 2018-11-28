@@ -96,8 +96,16 @@ pub trait IterFromHtml {
         Self::iter_from_double_attr(selector_str, attr, Self::Elem::get_elem_by_selector_and_attr)
     }
 
+    fn iter_selector_and_html(selector_str: &'static str) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>> {
+        Self::iter_from_single_attr(selector_str, Self::Elem::get_elem_by_selector_and_html)
+    }
+
     fn iter_by_selector_and_inner_text(selector_str: &'static str) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>> {
         Self::iter_from_single_attr(selector_str, Self::Elem::get_elem_by_selector_and_inner_text)
+    }
+
+    fn iter_by_attr(selector_str: &'static str) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>> {
+        Self::iter_from_single_attr(selector_str, Self::Elem::get_elem_by_attr)
     }
 }
 
