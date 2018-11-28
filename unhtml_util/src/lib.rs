@@ -70,7 +70,7 @@ pub trait FromHtml {
 pub trait IterFromHtml {
     type Err: std::error::Error + Send + Sync + 'static;
     type Elem: FromStr<Err=Self::Err> + 'static;
-    fn iter_from_single_str<Fun>(string: &'static str, getter_fn: Fun) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>>
+    fn iter_from_single_attr<Fun>(string: &'static str, getter_fn: Fun) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>>
         where Fun: Fn(&'static str) -> Box<Fn(ElementRef) -> Result<Self::Elem, Error>> + 'static + Copy {
         Box::new(move |selects| {
             let mut list: LinkedList<Self::Elem> = LinkedList::new();
@@ -81,8 +81,23 @@ pub trait IterFromHtml {
         })
     }
 
+    fn iter_from_double_attr<Fun>(str_former: &'static str, str_latter: &'static str, getter_fn: Fun) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>>
+        where Fun: Fn(&'static str, &'static str) -> Box<Fn(ElementRef) -> Result<Self::Elem, Error>> + 'static + Copy {
+        Box::new(move |selects| {
+            let mut list: LinkedList<Self::Elem> = LinkedList::new();
+            for elem_ref in selects {
+                list.push_back(getter_fn(str_former, str_latter)(elem_ref)?);
+            }
+            Ok(list.into_iter())
+        })
+    }
+
+    fn iter_by_selector_and_attr(selector_str: &'static str, attr: &'static str) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>> {
+        Self::iter_from_double_attr(selector_str, attr, Self::Elem::get_elem_by_selector_and_attr)
+    }
+
     fn iter_by_selector_and_inner_text(selector_str: &'static str) -> Box<Fn(Select) -> Result<IntoIter<Self::Elem>, Error>> {
-        Self::iter_from_single_str(selector_str, Self::Elem::get_elem_by_selector_and_inner_text)
+        Self::iter_from_single_attr(selector_str, Self::Elem::get_elem_by_selector_and_inner_text)
     }
 }
 
