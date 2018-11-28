@@ -6,9 +6,6 @@ extern crate syn;
 extern crate scraper;
 #[macro_use]
 extern crate quote;
-
-extern crate cssparser;
-extern crate selectors;
 extern crate unhtml_util;
 
 #[cfg(test)]

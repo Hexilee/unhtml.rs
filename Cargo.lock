@@ -65,23 +65,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cssparser"
-version = "0.25.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "cssparser-macros 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "dtoa-short 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "itoa 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "matches 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "phf 0.7.23 (registry+https://github.com/rust-lang/crates.io-index)",
- "proc-macro2 0.4.24 (registry+https://github.com/rust-lang/crates.io-index)",
- "procedural-masquerade 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "quote 0.6.10 (registry+https://github.com/rust-lang/crates.io-index)",
- "smallvec 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "syn 0.15.22 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "cssparser-macros"
 version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -505,11 +488,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "unhtml"
 version = "0.1.0"
 dependencies = [
- "cssparser 0.25.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "proc-macro2 0.4.24 (registry+https://github.com/rust-lang/crates.io-index)",
  "quote 0.6.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "scraper 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "selectors 0.20.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "syn 0.15.22 (registry+https://github.com/rust-lang/crates.io-index)",
  "unhtml_util 0.1.0",
 ]
@@ -579,7 +560,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum cfg-if 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = "082bb9b28e00d3c9d39cc03e64ce4cea0f1bb9b3fde493f0cbc008472d22bdf4"
 "checksum cloudabi 0.0.3 (registry+https://github.com/rust-lang/crates.io-index)" = "ddfc5b9aa5d4507acaf872de71051dfd0e309860e88966e1051e462a077aac4f"
 "checksum cssparser 0.24.1 (registry+https://github.com/rust-lang/crates.io-index)" = "b200a7193703a615c8d2751fed1ede39b9c4b3905e09d1ec7064a24688c190fc"
-"checksum cssparser 0.25.1 (registry+https://github.com/rust-lang/crates.io-index)" = "aa4c7e7b72ef04e94e80cec7a4bd795fc2a67a9ce627bc684cf95dd89711d972"
 "checksum cssparser-macros 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)" = "b16e382d9b983fdb9ac6a36b37fdeb84ce3ea81f749febfee3463cfa7f24275e"
 "checksum dtoa 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)" = "6d301140eb411af13d3115f9a562c85cc6b541ade9dfa314132244aaee7489dd"
 "checksum dtoa-short 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "59020b8513b76630c49d918c33db9f4c91638e7d3404a28084083b87e33f76f2"
