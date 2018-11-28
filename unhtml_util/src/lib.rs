@@ -14,10 +14,7 @@ pub use scraper::ElementRef;
 pub use std::error::*;
 pub use std::str::FromStr;
 
-type ParseError = Box<Error>;
-
-pub fn get_elem_by_selector_and_attr<T: FromStr>(selector_str: &'static str, attr: &'static str) -> Box<Fn(ElementRef) -> Result<T, ParseError>> {
-    u8::from_str()
+pub fn get_elem_by_selector_and_attr<T: FromStr<ParseError>>(selector_str: &'static str, attr: &'static str) -> Box<Fn(ElementRef) -> Result<T, ParseError>> {
     let selector = Selector::parse(selector_str).unwrap();
     Box::new(move |elem: ElementRef| {
         let first_elem = elem.select(&selector).next().ok_or(
