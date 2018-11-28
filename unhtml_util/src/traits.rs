@@ -1,11 +1,10 @@
 use std::collections::LinkedList;
-pub use scraper::Selector;
-pub use scraper::Html;
-pub use scraper::ElementRef;
-pub use scraper::element_ref::Select;
-pub use std::str::FromStr;
-pub use failure::Error;
-pub use std::collections::linked_list::IntoIter;
+use scraper::Selector;
+use scraper::ElementRef;
+use scraper::element_ref::Select;
+use std::str::FromStr;
+use failure::Error;
+use std::collections::linked_list::IntoIter;
 use super::err::ParseError;
 
 pub trait FromHtml {
