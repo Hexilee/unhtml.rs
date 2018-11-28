@@ -1,14 +1,16 @@
 use syn::{Fields, Lit, Attribute, ItemStruct};
 use proc_macro2::TokenStream;
 use unhtml_util::{HTML_IDENT, SELECTOR_IDENT, ATTR_IDENT, DEFAULT_IDENT};
+use scraper::Selector;
 
 pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
     let struct_name = &ast.ident;
+    let data_ident = quote!(data);
     let result_recurse = match ast.fields {
         Fields::Named(ref fields) => fields.named.iter().map(|field| -> TokenStream {
             let name = &field.ident;
             let macro_attr = get_macro_attr(&field.attrs);
-            println!("{:?}", &macro_attr);
+
             quote! {#name: "Hello, World"}
         }),
         Fields::Unnamed(_) | Fields::Unit => unreachable!(),
@@ -17,7 +19,7 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
         #ast
         impl std::str::FromStr for #struct_name {
             type Err = ParseError;
-            fn from_str(data: &str) -> Result<Self, Self::Err> {
+            fn from_str(#data_ident: &str) -> Result<Self, Self::Err> {
                 Ok(#struct_name{#(#result_recurse),*})
             }
         }
@@ -53,4 +55,10 @@ fn get_macro_attr(attrs: &Vec<Attribute>) -> MacroAttr {
         }
     }
     macro_attr
+}
+
+fn check_selector(lit: &Lit) {
+    if let &Lit::Str(ref str_lit) = lit {
+        Selector::parse(&str_lit.value()).unwrap();
+    }
 }
