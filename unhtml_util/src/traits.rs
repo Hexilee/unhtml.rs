@@ -88,6 +88,7 @@ pub trait VecFromHtml {
             let mut list = Vec::new();
             for elem_ref in selects {
                 list.push(getter_fn(str_former, str_latter)(elem_ref)?);
+                println!("push 1");
             }
             Ok(list)
         })

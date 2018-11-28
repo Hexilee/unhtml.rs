@@ -23,6 +23,8 @@ fn test_vec_by_selector_and_attr() {
     let selector = Selector::parse("#test").unwrap();
     let results = u8::vec_by_selector_and_attr("a", "href")(html.select(&selector)).unwrap();
     assert_eq!(1u8, results[0]);
+    assert_eq!(2u8, results[1]);
+    assert_eq!(3u8, results[2]);
 }
 
 #[test]
