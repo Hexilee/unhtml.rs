@@ -1,11 +1,6 @@
-use scraper::Selector;
-use syn::spanned::Spanned;
-use syn::{Fields, AttrStyle, Lit, Attribute, ItemStruct};
+use syn::{Fields, Lit, Attribute};
 use proc_macro2::TokenStream;
-use proc_macro2::TokenTree;
-use std::str::FromStr;
-use proc_macro2::Literal;
-use unhtml_util::*;
+use unhtml_util::{HTML_IDENT, SELECTOR_IDENT, ATTR_IDENT, DEFAULT_IDENT};
 
 pub fn impl_un_html(ast: &syn::ItemStruct) -> TokenStream {
     let struct_name = &ast.ident;
