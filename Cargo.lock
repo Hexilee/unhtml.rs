@@ -515,16 +515,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "unhtml_test"
-version = "0.1.0"
-dependencies = [
- "cssparser 0.25.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "selectors 0.20.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "unhtml 0.1.0",
- "unhtml_util 0.1.0",
-]
-
-[[package]]
 name = "unhtml_util"
 version = "0.1.0"
 dependencies = [
