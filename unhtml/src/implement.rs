@@ -1,16 +1,27 @@
 use syn::{Fields, Lit, Attribute, ItemStruct};
 use proc_macro2::TokenStream;
-use unhtml_util::{HTML_IDENT, SELECTOR_IDENT, ATTR_IDENT, DEFAULT_IDENT};
 use scraper::Selector;
+use unhtml_util::{HTML_IDENT, SELECTOR_IDENT, ATTR_IDENT, DEFAULT_IDENT};
 
 pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
     let struct_name = &ast.ident;
     let data_ident = quote!(data);
+    let select_ident = quote!(select);
+    let top_macro_attr = get_macro_attr(&ast.attrs);
+    let doc = quote!(Html::parse_fragment(#data_ident));
+    let select_define_block = match top_macro_attr.selector {
+        Some(selector) => {
+            check_selector(&selector);
+            quote!(let #select_ident = #doc.select(&Selector::parse(#selector).unwrap()).next().ok_or(
+                ParseError::SelectOrAttrEmptyErr { attr: "selector".to_string(), value: #selector.to_string() }
+            )?;)
+        },
+        None => quote!(let #select_ident = #doc;)
+    };
     let result_recurse = match ast.fields {
         Fields::Named(ref fields) => fields.named.iter().map(|field| -> TokenStream {
             let name = &field.ident;
             let macro_attr = get_macro_attr(&field.attrs);
-
             quote! {#name: "Hello, World"}
         }),
         Fields::Unnamed(_) | Fields::Unit => unreachable!(),
@@ -20,6 +31,7 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
         impl std::str::FromStr for #struct_name {
             type Err = ParseError;
             fn from_str(#data_ident: &str) -> Result<Self, Self::Err> {
+                #select_define_block
                 Ok(#struct_name{#(#result_recurse),*})
             }
         }

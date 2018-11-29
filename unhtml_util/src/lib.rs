@@ -8,6 +8,7 @@ mod test;
 mod err;
 mod traits;
 pub use self::err::*;
+pub use scraper::{Selector, Html};
 pub use self::traits::*;
 pub const HTML_IDENT: &str = "html";
 pub const SELECTOR_IDENT: &str = "selector";
