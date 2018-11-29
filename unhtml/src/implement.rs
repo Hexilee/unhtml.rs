@@ -29,7 +29,7 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
     };
     quote! {
         #ast
-        impl std::str::FromStr for #struct_name {
+        impl FromStr for #struct_name {
             type Err = ParseError;
             fn from_str(#data_ident: &str) -> Result<Self, Self::Err> {
                 #select_define_block
