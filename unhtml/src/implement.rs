@@ -8,6 +8,7 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
     let data_ident = quote!(data);
     let select_ident = quote!(select);
     let top_macro_attr = get_macro_attr(&ast.attrs);
+    println!("{:?}", &top_macro_attr);
     let doc = quote!(Html::parse_fragment(#data_ident));
     let select_define_block = match top_macro_attr.selector {
         Some(selector) => {

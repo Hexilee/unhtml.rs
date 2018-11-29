@@ -9,7 +9,7 @@ use unhtml_util::*;
 mod test;
 
 #[unhtml]
-#[selector = "#test"]
+#[html(selector = "#test")]
 struct User {
     #[html(selector = "#test", default = "Hexilee")]
     name: String,
