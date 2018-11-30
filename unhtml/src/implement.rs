@@ -16,26 +16,36 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
             quote!(let #root_element_ref_ident = #doc.select(&Selector::parse(#selector).unwrap()).next().ok_or(
                 ParseError::SelectOrAttrEmptyErr { attr: "selector".to_string(), value: #selector.to_string() }
             )?;)
-        },
+        }
         None => quote!(let #root_element_ref_ident = #doc.root_element_ref();)
     };
     let result_recurse = match ast.fields {
-        Fields::Named(ref fields) => fields.named.iter().map(|field| -> TokenStream {
-            let name = &field.ident;
-            let macro_attr = get_macro_attr(&field.attrs);
-            quote! {#name: "Hello, World"}
-        }),
+        Fields::Named(ref fields) => fields.named.iter().map(get_field_token_stream(&root_element_ref_ident)),
         Fields::Unnamed(_) | Fields::Unit => unreachable!(),
     };
     quote! {
         #ast
         impl FromStr for #struct_name {
-            type Err = ParseError;
+            type Err = failure::Error;
             fn from_str(#data_ident: &str) -> Result<Self, Self::Err> {
                 #root_element_ref_define_block
                 Ok(#struct_name{#(#result_recurse),*})
             }
         }
+    }
+}
+
+fn get_field_token_stream(root_element_ref_ident: &TokenStream) -> impl Fn(&syn::Field) -> TokenStream {
+    |field| {
+        let name = &field.ident;
+        let macro_attr = get_macro_attr(&field.attrs);
+        quote! {#name: "Hello, World"}
+    }
+}
+
+fn get_match_block_token_stream(option_result_token_stream: TokenStream, default: Option<Lit>) -> TokenStream {
+    quote! {
+    match
     }
 }
 
