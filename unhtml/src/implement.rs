@@ -11,15 +11,16 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
     let data_ident = quote!(data);
     let root_element_ref_ident = quote!(root_element_ref);
     let top_macro_attr = get_macro_attr(&ast.attrs);
-    let doc = quote!(Html::parse_fragment(#data_ident));
+    let doc_ident = quote!(doc);
+    let doc_define_block = quote!(let #doc_ident = Html::parse_fragment(#data_ident););
     let root_element_ref_define_block = match top_macro_attr.selector {
         Some(selector) => {
             check_selector(&selector);
-            quote!(let #root_element_ref_ident = #doc.select(&Selector::parse(#selector).unwrap()).next().ok_or(
+            quote!(let #root_element_ref_ident = #doc_ident.select(&Selector::parse(#selector).unwrap()).next().ok_or(
                 ParseError::SelectOrAttrEmptyErr { attr: "selector".to_string(), value: #selector.to_string() }
             )?;)
         }
-        None => quote!(let #root_element_ref_ident = #doc.root_element_ref();)
+        None => quote!(let #root_element_ref_ident = #doc_ident.root_element_ref();)
     };
     let result_recurse = match ast.fields {
         Fields::Named(ref fields) => fields.named.iter().map(get_field_token_stream(root_element_ref_ident.clone())),
@@ -30,6 +31,7 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
         impl FromStr for #struct_name {
             type Err = failure::Error;
             fn from_str(#data_ident: &str) -> Result<Self, Self::Err> {
+                #doc_define_block
                 #root_element_ref_define_block
                 Ok(#struct_name{#(#result_recurse),*})
             }
