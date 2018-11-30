@@ -11,7 +11,6 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
     let data_ident = quote!(data);
     let root_element_ref_ident = quote!(root_element_ref);
     let top_macro_attr = get_macro_attr(&ast.attrs);
-    println!("{:?}", &top_macro_attr);
     let doc = quote!(Html::parse_fragment(#data_ident));
     let root_element_ref_define_block = match top_macro_attr.selector {
         Some(selector) => {
@@ -50,7 +49,6 @@ fn get_field_token_stream(root_element_ref_ident: &TokenStream) -> impl Fn(&syn:
         let path_segment = type_path.path.segments.first().unwrap();
         let type_ident = &path_segment.value().ident;
         let type_arguments = &path_segment.value().arguments;
-        println!("{}", &type_ident);
         let match_block_token_stream = get_match_block_token_stream(type_ident, quote!(Err(())), macro_attr.default);
         quote!(#name: #match_block_token_stream)
     }
