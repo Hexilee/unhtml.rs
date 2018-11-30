@@ -3,8 +3,8 @@ use proc_macro2::TokenStream;
 use scraper::Selector;
 use unhtml_util::{HTML_IDENT, SELECTOR_IDENT, ATTR_IDENT, DEFAULT_IDENT};
 
-const TYPE_STRING: &str= "String";
-const TYPE_VEC: &str= "Vec";
+const TYPE_STRING: &str = "String";
+const TYPE_VEC: &str = "Vec";
 
 pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
     let struct_name = &ast.ident;
@@ -26,7 +26,7 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
         Fields::Named(ref fields) => fields.named.iter().map(get_field_token_stream(&root_element_ref_ident)),
         Fields::Unnamed(_) | Fields::Unit => unreachable!(),
     };
-    quote! {
+    quote!(
         #ast
         impl FromStr for #struct_name {
             type Err = failure::Error;
@@ -35,7 +35,7 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
                 Ok(#struct_name{#(#result_recurse),*})
             }
         }
-    }
+    )
 }
 
 fn get_field_token_stream(root_element_ref_ident: &TokenStream) -> impl Fn(&syn::Field) -> TokenStream {
@@ -51,8 +51,8 @@ fn get_field_token_stream(root_element_ref_ident: &TokenStream) -> impl Fn(&syn:
         let type_ident = &path_segment.value().ident;
         let type_arguments = &path_segment.value().arguments;
         println!("{}", &type_ident);
-        let match_block_token_stream = get_match_block_token_stream(type_ident, quote!(None), macro_attr.default);
-        quote! {#name: #match_block_token_stream}
+        let match_block_token_stream = get_match_block_token_stream(type_ident, quote!(Err(())), macro_attr.default);
+        quote!(#name: #match_block_token_stream)
     }
 }
 
@@ -67,16 +67,14 @@ fn get_match_block_token_stream(type_ident: &syn::Ident, result_token_stream: To
             } else {
                 quote!(#type_ident::from(#lit))
             };
-            quote! {
-                match #result_token_stream {
-                    Some(final_result) => final_result,
-                    None => #lit_token_stream
+            quote!(
+                match # result_token_stream {
+                    Ok(final_result) => final_result,
+                    Err(_) => #lit_token_stream
                 }
-            }
+            )
         }
-        None => quote! {
-            #result_token_stream?
-        }
+        None => quote!(#result_token_stream?)
     }
 }
 
