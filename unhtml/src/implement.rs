@@ -68,7 +68,7 @@ fn get_match_block_token_stream(type_ident: &syn::Ident, result_token_stream: To
                 // String::from_str() return String instead of Result<String, Self::Err>
                 quote!(#type_ident::from(#lit))
             } else if let Lit::Str(_) = lit {
-                quote!(#type_ident::from_str(lit)?)
+                quote!(#type_ident::from_str(#lit)?)
             } else {
                 quote!(#type_ident::from(#lit))
             };

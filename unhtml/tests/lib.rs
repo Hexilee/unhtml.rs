@@ -8,15 +8,21 @@ use unhtml_util::*;
 #[cfg(test)]
 mod test;
 
+// default test case
 #[unhtml]
-//#[html(selector = "#test")]
-struct User {
-    #[html(selector = "#test", default = "Hexilee")]
+struct DefaultUser {
+    // invoke String::from
+    #[html(selector = "#non-exist", default = "Hexilee")]
     name: String,
 
-    #[html(selector = "#test", default = 20)]
+    // invoke u8::from<u8>
+    #[html(default = 20)]
     age: u8,
 
-    #[html(selector = "#test", default = true)]
+    // invoke i64::from_str
+    #[html(default = "-1000")]
+    assets: i64,
+
+    #[html(default = true)]
     like_lemon: bool,
 }
