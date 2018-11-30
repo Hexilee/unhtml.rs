@@ -3,6 +3,9 @@ use proc_macro2::TokenStream;
 use scraper::Selector;
 use unhtml_util::{HTML_IDENT, SELECTOR_IDENT, ATTR_IDENT, DEFAULT_IDENT};
 
+const TYPE_STRING: &str= "String";
+const TYPE_VEC: &str= "Vec";
+
 pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
     let struct_name = &ast.ident;
     let data_ident = quote!(data);
@@ -36,22 +39,41 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
 }
 
 fn get_field_token_stream(root_element_ref_ident: &TokenStream) -> impl Fn(&syn::Field) -> TokenStream {
-    |field| {
+    |field: &syn::Field| {
         let name = &field.ident;
         let macro_attr = get_macro_attr(&field.attrs);
-        let match_block_token_stream = get_match_block_token_stream(quote!(None), macro_attr.default);
+        let type_path = if let syn::Type::Path(ref path) = field.ty {
+            path
+        } else {
+            panic!("unsupported field type: {:?}", &field.ty);
+        };
+        let path_segment = type_path.path.segments.first().unwrap();
+        let type_ident = &path_segment.value().ident;
+        let type_arguments = &path_segment.value().arguments;
+        println!("{}", &type_ident);
+        let match_block_token_stream = get_match_block_token_stream(type_ident, quote!(None), macro_attr.default);
         quote! {#name: #match_block_token_stream}
     }
 }
 
-fn get_match_block_token_stream(result_token_stream: TokenStream, default: Option<Lit>) -> TokenStream {
+fn get_match_block_token_stream(type_ident: &syn::Ident, result_token_stream: TokenStream, default: Option<Lit>) -> TokenStream {
     match default {
-        Some(lit) => quote! {
-            match #result_token_stream {
-                Some(final_result) => final_result,
-                None => #lit
+        Some(lit) => {
+            let lit_token_stream = if type_ident == TYPE_STRING {
+                // String::from_str() return String instead of Result<String, Self::Err>
+                quote!(#type_ident::from(#lit))
+            } else if let Lit::Str(_) = lit {
+                quote!(#type_ident::from_str(lit)?)
+            } else {
+                quote!(#type_ident::from(#lit))
+            };
+            quote! {
+                match #result_token_stream {
+                    Some(final_result) => final_result,
+                    None => #lit_token_stream
+                }
             }
-        },
+        }
         None => quote! {
             #result_token_stream?
         }
