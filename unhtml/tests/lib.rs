@@ -29,6 +29,18 @@ struct DefaultUser {
 
 #[unhtml]
 #[html(selector = "#test")]
+struct SingleUser {
+    #[html(selector = "p:nth-child(1)", attr = "value")]
+    name: String,
+
+    #[html(selector = "p:nth-child(2)", attr = "value")]
+    age: u8,
+
+    #[html(selector = "p:nth-child(3)", attr = "value")]
+    like_lemon: bool,
+}
+
+#[unhtml]
 struct TestUser {
     #[html(selector = "p:nth-child(1)", attr = "value")]
     name: String,
@@ -38,4 +50,11 @@ struct TestUser {
 
     #[html(selector = "p:nth-child(3)", attr = "value")]
     like_lemon: bool,
+}
+
+#[unhtml]
+#[html(selector = "#test")]
+struct TestUsers {
+    #[html(selector = "div")]
+    users: Vec<TestUser>,
 }

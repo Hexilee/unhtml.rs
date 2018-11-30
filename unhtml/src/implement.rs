@@ -94,7 +94,7 @@ fn get_result_token_stream(root_element_ref_ident: &TokenStream,
                     let attr_value = get_lit_str_value(&attr_lit);
                     if &attr_value == ATTR_INNER_TEXT {
                         if is_vec(type_ident, type_arguments) {
-                            quote!(#type_ident::<#type_arguments>::from_inner_text(#selector_lit, #root_element_ref_ident.clone()))
+                            quote!(#type_ident::#type_arguments::from_inner_text(#selector_lit, #root_element_ref_ident.clone()))
                         } else {
                             quote!(#type_ident::get_elem_by_selector_and_inner_text(#selector_lit)(#root_element_ref_ident.clone()))
                         }
@@ -137,13 +137,27 @@ fn get_result_token_stream(root_element_ref_ident: &TokenStream,
 }
 
 fn is_vec(type_ident: &syn::Ident, type_arguments: &syn::PathArguments) -> bool {
-    type_ident == TYPE_VEC && !type_arguments.is_empty()
+    if let &syn::PathArguments::AngleBracketed(ref angle_bracket) = type_arguments {
+        type_ident == TYPE_VEC && !type_arguments.is_empty()
+    }
+    false
 }
 
 fn check_type_arguments(type_ident: &syn::Ident, type_arguments: &syn::PathArguments) {
     if !is_vec(type_ident, type_arguments) && !type_arguments.is_empty() {
         panic!("field cannot be generic except for Vec<T>");
     }
+}
+
+fn get_vec_elem_type<'a>(type_ident: &syn::Ident, type_arguments: &'a syn::PathArguments) -> Option<&'a syn::Type> {
+    if let &syn::PathArguments::AngleBracketed(ref angle_bracket) = type_arguments {
+        if type_ident == TYPE_VEC && !type_arguments.is_empty() {
+            if let syn::GenericArgument::Type(ty) = angle_bracket.args.first()?.value() {
+                Some(ty)
+            }
+        }
+    }
+    None
 }
 
 #[derive(Debug)]
