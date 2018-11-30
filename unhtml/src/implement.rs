@@ -94,13 +94,13 @@ fn get_result_token_stream(root_element_ref_ident: &TokenStream,
                     let attr_value = get_lit_str_value(&attr_lit);
                     if &attr_value == ATTR_INNER_TEXT {
                         if is_vec(type_ident, type_arguments) {
-                            quote!(Err(()))
+                            quote!(#type_ident::vec_by_inner_text(&Selector::parse(#selector_lit).unwrap()))
                         } else {
                             quote!(#type_ident::get_elem_by_selector_and_inner_text(#selector_lit)(#root_element_ref_ident.clone()))
                         }
                     } else {
                         if is_vec(type_ident, type_arguments) {
-                            quote!(Err(()))
+                            quote!(#type_ident::vec_by_attr(#attr_lit)(&Selector::parse(#selector_lit).unwrap()))
                         } else {
                             quote!(#type_ident::get_elem_by_selector_and_attr(#selector_lit, #attr_lit)(#root_element_ref_ident.clone()))
                         }
@@ -108,7 +108,7 @@ fn get_result_token_stream(root_element_ref_ident: &TokenStream,
                 }
                 None => {
                     if is_vec(type_ident, type_arguments) {
-                        quote!(Err(()))
+                        quote!(#type_ident::vec_by_html(&Selector::parse(#selector_lit).unwrap()))
                     } else {
                         quote!(#type_ident::get_elem_by_selector_and_html(#selector_lit)(#root_element_ref_ident.clone()))
                     }
@@ -116,29 +116,20 @@ fn get_result_token_stream(root_element_ref_ident: &TokenStream,
             }
         }
         None => {
+            if is_vec(type_ident, type_arguments) {
+                panic!("vec field must has selector!")
+            }
             match macro_attr.attr {
                 Some(attr_lit) => {
                     let attr_value = get_lit_str_value(&attr_lit);
                     if &attr_value == ATTR_INNER_TEXT {
-                        if is_vec(type_ident, type_arguments) {
-                            quote!(Err(()))
-                        } else {
-                            quote!(#type_ident::get_elem_by_inner_text(#root_element_ref_ident.clone()))
-                        }
+                        quote!(#type_ident::get_elem_by_inner_text(#root_element_ref_ident.clone()))
                     } else {
-                        if is_vec(type_ident, type_arguments) {
-                            quote!(Err(()))
-                        } else {
-                            quote!(#type_ident::get_elem_by_attr(#attr_lit)(#root_element_ref_ident.clone()))
-                        }
+                        quote!(#type_ident::get_elem_by_attr(#attr_lit)(#root_element_ref_ident.clone()))
                     }
                 }
                 None => {
-                    if is_vec(type_ident, type_arguments) {
-                        quote!(Err(()))
-                    } else {
-                        quote!(#type_ident::get_elem_by_html(#root_element_ref_ident.clone()))
-                    }
+                    quote!(#type_ident::get_elem_by_html(#root_element_ref_ident.clone()))
                 }
             }
         }
