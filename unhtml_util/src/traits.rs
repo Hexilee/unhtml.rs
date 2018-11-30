@@ -60,61 +60,37 @@ pub trait FromHtml {
 pub trait VecFromHtml {
     type Err: std::error::Error + Send + Sync + 'static;
     type Elem: FromStr<Err=Self::Err> + 'static;
-    fn vec_from<Fun>(getter_fn: Fun) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>>
-        where Fun: Fn(ElementRef) -> Result<Self::Elem, Error> + 'static + Copy {
-        Box::new(move |selects| {
-            let mut list = Vec::new();
-            for elem_ref in selects {
-                list.push(getter_fn(elem_ref)?);
-            }
-            Ok(list)
+    fn from_attr(selector_str: &str, attr: &str, root_element_ref: ElementRef) -> Result<Vec<Self::Elem>, Error> {
+        Self::vec_from(selector_str, root_element_ref, |element_ref| {
+            Ok(Self::Elem::from_str(
+                element_ref.value().attr(attr).ok_or(
+                    ParseError::SelectOrAttrEmptyErr { attr: "attr".to_string(), value: attr.to_string() }
+                )?
+            )?)
         })
     }
 
-    fn vec_from_single_attr<Fun>(string: &'static str, getter_fn: Fun) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>>
-        where Fun: Fn(&'static str) -> Box<Fn(ElementRef) -> Result<Self::Elem, Error>> + 'static + Copy {
-        Box::new(move |selects| {
-            let mut list = Vec::new();
-            for elem_ref in selects {
-                list.push(getter_fn(string)(elem_ref)?);
-            }
-            Ok(list)
+    fn from_inner_text(selector_str: &str, root_element_ref: ElementRef) -> Result<Vec<Self::Elem>, Error> {
+        Self::vec_from(selector_str, root_element_ref, |element_ref| {
+            Ok(Self::Elem::from_str(&element_ref.inner_html())?)
         })
     }
 
-    fn vec_from_double_attr<Fun>(str_former: &'static str, str_latter: &'static str, getter_fn: Fun) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>>
-        where Fun: Fn(&'static str, &'static str) -> Box<Fn(ElementRef) -> Result<Self::Elem, Error>> + 'static + Copy {
-        Box::new(move |selects| {
-            let mut list = Vec::new();
-            for elem_ref in selects {
-                list.push(getter_fn(str_former, str_latter)(elem_ref)?);
-            }
-            Ok(list)
+    fn from_html(selector_str: &str, root_element_ref: ElementRef) -> Result<Vec<Self::Elem>, Error> {
+        Self::vec_from(selector_str, root_element_ref, |element_ref| {
+            Ok(Self::Elem::from_str(&element_ref.html())?)
         })
     }
 
-    fn vec_by_selector_and_attr(selector_str: &'static str, attr: &'static str) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>> {
-        Self::vec_from_double_attr(selector_str, attr, Self::Elem::get_elem_by_selector_and_attr)
-    }
-
-    fn vec_by_selector_and_html(selector_str: &'static str) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>> {
-        Self::vec_from_single_attr(selector_str, Self::Elem::get_elem_by_selector_and_html)
-    }
-
-    fn vec_by_selector_and_inner_text(selector_str: &'static str) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>> {
-        Self::vec_from_single_attr(selector_str, Self::Elem::get_elem_by_selector_and_inner_text)
-    }
-
-    fn vec_by_attr(attr: &'static str) -> Box<Fn(Select) -> Result<Vec<Self::Elem>, Error>> {
-        Self::vec_from_single_attr(attr, Self::Elem::get_elem_by_attr)
-    }
-
-    fn vec_by_html(selects: Select) -> Result<Vec<Self::Elem>, Error> {
-        Self::vec_from(Self::Elem::get_elem_by_html)(selects)
-    }
-
-    fn vec_by_inner_text(selects: Select) -> Result<Vec<Self::Elem>, Error> {
-        Self::vec_from(Self::Elem::get_elem_by_inner_text)(selects)
+    fn vec_from<GetElemFun>(selector_str: &str, root_element_ref: ElementRef, get_elem_fun: GetElemFun) -> Result<Vec<Self::Elem>, Error>
+        where GetElemFun: Fn(ElementRef) -> Result<Self::Elem, Error> {
+        let selector = Selector::parse(selector_str).unwrap();
+        let selects = root_element_ref.select(&selector);
+        let mut list = Vec::new();
+        for elem_ref in selects {
+            list.push(get_elem_fun(elem_ref)?);
+        }
+        Ok(list)
     }
 }
 
@@ -126,7 +102,7 @@ impl<E, T> FromHtml for T
     type Elem = T;
 }
 
-impl<E, T> VecFromHtml for T
+impl<E, T> VecFromHtml for Vec<T>
     where E: std::error::Error + Send + Sync + 'static,
           T: FromStr<Err=E> + 'static {
     type Err = E;
