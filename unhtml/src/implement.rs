@@ -39,13 +39,22 @@ fn get_field_token_stream(root_element_ref_ident: &TokenStream) -> impl Fn(&syn:
     |field| {
         let name = &field.ident;
         let macro_attr = get_macro_attr(&field.attrs);
-        quote! {#name: "Hello, World"}
+        let match_block_token_stream = get_match_block_token_stream(quote!(None), macro_attr.default);
+        quote! {#name: #match_block_token_stream}
     }
 }
 
-fn get_match_block_token_stream(option_result_token_stream: TokenStream, default: Option<Lit>) -> TokenStream {
-    quote! {
-    match
+fn get_match_block_token_stream(result_token_stream: TokenStream, default: Option<Lit>) -> TokenStream {
+    match default {
+        Some(lit) => quote! {
+            match #result_token_stream {
+                Some(final_result) => final_result,
+                None => #lit
+            }
+        },
+        None => quote! {
+            #result_token_stream?
+        }
     }
 }
 
