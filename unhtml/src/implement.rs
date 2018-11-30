@@ -1,7 +1,7 @@
 use syn::{Fields, Lit, Attribute, ItemStruct};
 use proc_macro2::TokenStream;
 use scraper::Selector;
-use unhtml_util::{HTML_IDENT, SELECTOR_IDENT, ATTR_IDENT, DEFAULT_IDENT};
+use unhtml_util::{HTML_IDENT, SELECTOR_IDENT, ATTR_IDENT, DEFAULT_IDENT, ATTR_INNER_TEXT};
 
 const TYPE_STRING: &str = "String";
 const TYPE_VEC: &str = "Vec";
@@ -83,7 +83,74 @@ fn get_match_block_token_stream(type_ident: &syn::Ident, result_token_stream: To
 
 fn get_result_token_stream(root_element_ref_ident: &TokenStream,
                            macro_attr: MacroAttr, type_ident: &syn::Ident, type_arguments: &syn::PathArguments) -> TokenStream {
-    quote!(Err(()))
+    check_type_arguments(type_ident, type_arguments);
+    match macro_attr.selector {
+        Some(selector_lit) => {
+            check_selector(&selector_lit);
+            match macro_attr.attr {
+                Some(attr_lit) => {
+                    let attr_value = get_lit_str_value(&attr_lit);
+                    if &attr_value == ATTR_INNER_TEXT {
+                        if is_vec(type_ident, type_arguments) {
+                            quote!(Err(()))
+                        } else {
+                            quote!(#type_ident::get_elem_by_selector_and_inner_text(#selector_lit)(#root_element_ref_ident.clone()))
+                        }
+                    } else {
+                        if is_vec(type_ident, type_arguments) {
+                            quote!(Err(()))
+                        } else {
+                            quote!(#type_ident::get_elem_by_selector_and_attr(#selector_lit, #attr_lit)(#root_element_ref_ident.clone()))
+                        }
+                    }
+                }
+                None => {
+                    if is_vec(type_ident, type_arguments) {
+                        quote!(Err(()))
+                    } else {
+                        quote!(#type_ident::get_elem_by_selector_and_html(#selector_lit)(#root_element_ref_ident.clone()))
+                    }
+                }
+            }
+        }
+        None => {
+            match macro_attr.attr {
+                Some(attr_lit) => {
+                    let attr_value = get_lit_str_value(&attr_lit);
+                    if &attr_value == ATTR_INNER_TEXT {
+                        if is_vec(type_ident, type_arguments) {
+                            quote!(Err(()))
+                        } else {
+                            quote!(#type_ident::get_elem_by_inner_text(#root_element_ref_ident.clone()))
+                        }
+                    } else {
+                        if is_vec(type_ident, type_arguments) {
+                            quote!(Err(()))
+                        } else {
+                            quote!(#type_ident::get_elem_by_attr(#attr_lit)(#root_element_ref_ident.clone()))
+                        }
+                    }
+                }
+                None => {
+                    if is_vec(type_ident, type_arguments) {
+                        quote!(Err(()))
+                    } else {
+                        quote!(#type_ident::get_elem_by_html(#root_element_ref_ident.clone()))
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn is_vec(type_ident: &syn::Ident, type_arguments: &syn::PathArguments) -> bool {
+    type_ident == TYPE_VEC && !type_arguments.is_empty()
+}
+
+fn check_type_arguments(type_ident: &syn::Ident, type_arguments: &syn::PathArguments) {
+    if !is_vec(type_ident, type_arguments) && !type_arguments.is_empty() {
+        panic!("field cannot be generic except for Vec<T>");
+    }
 }
 
 #[derive(Debug)]
@@ -120,5 +187,15 @@ fn get_macro_attr(attrs: &Vec<Attribute>) -> MacroAttr {
 fn check_selector(lit: &Lit) {
     if let &Lit::Str(ref str_lit) = lit {
         Selector::parse(&str_lit.value()).unwrap();
+    } else {
+        panic!("selector must be string")
+    }
+}
+
+fn get_lit_str_value(lit: &Lit) -> String {
+    if let &Lit::Str(ref str_lit) = lit {
+        str_lit.value()
+    } else {
+        panic!("selector must be string")
     }
 }
