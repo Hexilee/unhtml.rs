@@ -1,4 +1,5 @@
 use super::User;
+use unhtml_util::*;
 
 #[test]
 fn it_works() {
@@ -6,7 +7,9 @@ fn it_works() {
 }
 
 #[test]
-fn from_str_works() {
+fn test_default_value() {
     let user: User = User::from_str("").unwrap();
-    println!("{}", user.name)
+    assert_eq!("Hexilee".to_string(), user.name);
+    assert_eq!(20, user.age);
+    assert!(user.like_lemon);
 }
