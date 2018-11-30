@@ -17,7 +17,7 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
                 ParseError::SelectOrAttrEmptyErr { attr: "selector".to_string(), value: #selector.to_string() }
             )?;)
         },
-        None => quote!(let #select_ident = #doc;)
+        None => quote!(let #select_ident = #doc.root_element_ref();)
     };
     let result_recurse = match ast.fields {
         Fields::Named(ref fields) => fields.named.iter().map(|field| -> TokenStream {
