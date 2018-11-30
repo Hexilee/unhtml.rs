@@ -26,3 +26,16 @@ struct DefaultUser {
     #[html(default = true)]
     like_lemon: bool,
 }
+
+#[unhtml]
+#[html(selector = "#test")]
+struct TestUser {
+    #[html(selector = "p:nth-child(1)", attr = "value")]
+    name: String,
+
+    #[html(selector = "p:nth-child(2)", attr = "value")]
+    age: u8,
+
+    #[html(selector = "p:nth-child(3)", attr = "value")]
+    like_lemon: bool,
+}
