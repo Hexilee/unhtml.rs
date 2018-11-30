@@ -22,7 +22,7 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
         None => quote!(let #root_element_ref_ident = #doc.root_element_ref();)
     };
     let result_recurse = match ast.fields {
-        Fields::Named(ref fields) => fields.named.iter().map(get_field_token_stream(&root_element_ref_ident)),
+        Fields::Named(ref fields) => fields.named.iter().map(get_field_token_stream(root_element_ref_ident.clone())),
         Fields::Unnamed(_) | Fields::Unit => unreachable!(),
     };
     quote!(
@@ -37,8 +37,8 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
     )
 }
 
-fn get_field_token_stream(root_element_ref_ident: &TokenStream) -> impl Fn(&syn::Field) -> TokenStream {
-    |field: &syn::Field| {
+fn get_field_token_stream(root_element_ref_ident: TokenStream) -> impl Fn(&syn::Field) -> TokenStream {
+    move |field: &syn::Field| {
         let name = &field.ident;
         let macro_attr = get_macro_attr(&field.attrs);
         let type_path = if let syn::Type::Path(ref path) = field.ty {
@@ -49,7 +49,12 @@ fn get_field_token_stream(root_element_ref_ident: &TokenStream) -> impl Fn(&syn:
         let path_segment = type_path.path.segments.first().unwrap();
         let type_ident = &path_segment.value().ident;
         let type_arguments = &path_segment.value().arguments;
-        let match_block_token_stream = get_match_block_token_stream(type_ident, quote!(Err(())), macro_attr.default);
+        let default_value = macro_attr.default.clone();
+        let match_block_token_stream = get_match_block_token_stream(
+            type_ident,
+            get_result_token_stream(&root_element_ref_ident, macro_attr, type_ident, type_arguments),
+            default_value,
+        );
         quote!(#name: #match_block_token_stream)
     }
 }
@@ -74,6 +79,11 @@ fn get_match_block_token_stream(type_ident: &syn::Ident, result_token_stream: To
         }
         None => quote!(#result_token_stream?)
     }
+}
+
+fn get_result_token_stream(root_element_ref_ident: &TokenStream,
+                           macro_attr: MacroAttr, type_ident: &syn::Ident, type_arguments: &syn::PathArguments) -> TokenStream {
+    quote!(Err(()))
 }
 
 #[derive(Debug)]
