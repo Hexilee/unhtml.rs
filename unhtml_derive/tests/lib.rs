@@ -1,9 +1,10 @@
 #![feature(custom_attribute)]
 
+#[macro_use]
+extern crate unhtml_derive;
+
 extern crate unhtml;
-extern crate unhtml_util;
-use unhtml::unhtml;
-use unhtml_util::*;
+use unhtml::*;
 
 #[cfg(test)]
 mod test;

@@ -1,12 +1,13 @@
-use syn::{Fields, Lit, Attribute, ItemStruct};
+use syn::{Lit, Attribute};
 use proc_macro2::TokenStream;
 use scraper::Selector;
-use unhtml_util::{HTML_IDENT, SELECTOR_IDENT, ATTR_IDENT, DEFAULT_IDENT, ATTR_INNER_TEXT};
+use unhtml::{HTML_IDENT, SELECTOR_IDENT, ATTR_IDENT, DEFAULT_IDENT, ATTR_INNER_TEXT};
 
 const TYPE_STRING: &str = "String";
 const TYPE_VEC: &str = "Vec";
 
-pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
+pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
+    let ast = structure.ast();
     let struct_name = &ast.ident;
     let data_ident = quote!(data);
     let root_element_ref_ident = quote!(root_element_ref);
@@ -22,15 +23,13 @@ pub fn impl_un_html(ast: &ItemStruct) -> TokenStream {
         }
         None => quote!(let #root_element_ref_ident = #doc_ident.root_element_ref();)
     };
-    let result_recurse = match ast.fields {
-        Fields::Named(ref fields) => fields.named.iter().map(get_field_token_stream(root_element_ref_ident.clone())),
-        Fields::Unnamed(_) | Fields::Unit => unreachable!(),
+    let result_recurse = match ast.data {
+        syn::Data::Struct(ref data_struct) => data_struct.fields.iter().map(get_field_token_stream(root_element_ref_ident.clone())),
+        syn::Data::Enum(_) | syn::Data::Union(_) => unreachable!(),
     };
     quote!(
-        #ast
-        impl FromStr for #struct_name {
-            type Err = failure::Error;
-            fn from_str(#data_ident: &str) -> Result<Self, Self::Err> {
+        impl unhtml::FromHtml for #struct_name {
+            fn from_html(#data_ident: &str) -> Result<Self, failure::Error> {
                 #doc_define_block
                 #root_element_ref_define_block
                 Ok(#struct_name{#(#result_recurse),*})
@@ -93,58 +92,48 @@ fn get_result_token_stream(root_element_ref_ident: &TokenStream,
                 Some(attr_lit) => {
                     let attr_value = get_lit_str_value(&attr_lit);
                     if &attr_value == ATTR_INNER_TEXT {
-                        if is_vec(type_ident, type_arguments) {
-                            quote!(#type_ident::#type_arguments::from_inner_text(#selector_lit, #root_element_ref_ident.clone()))
-                        } else {
-                            quote!(#type_ident::get_elem_by_selector_and_inner_text(#selector_lit)(#root_element_ref_ident.clone()))
+                        match get_vec_elem_type(type_ident, type_arguments) {
+                            Some(ty) => quote!(#type_ident::<#ty>::from_inner_text(#selector_lit, #root_element_ref_ident.clone())),
+                            None => quote!(#type_ident::from_selector_and_inner_text(#selector_lit, #root_element_ref_ident.clone()))
                         }
                     } else {
-                        if is_vec(type_ident, type_arguments) {
-                            quote!(#type_ident::<#type_arguments>::from_attr(#selector_lit, #attr_lit, ##root_element_ref_ident.clone()))
-                        } else {
-                            quote!(#type_ident::get_elem_by_selector_and_attr(#selector_lit, #attr_lit)(#root_element_ref_ident.clone()))
+                        match get_vec_elem_type(type_ident, type_arguments) {
+                            Some(ty) => quote!(#type_ident::<#ty>::from_attr(#selector_lit, #attr_lit, #root_element_ref_ident.clone())),
+                            None => quote!(#type_ident::from_selector_and_attr(#selector_lit, #attr_lit, #root_element_ref_ident.clone()))
                         }
                     }
                 }
                 None => {
-                    if is_vec(type_ident, type_arguments) {
-                        quote!(#type_ident::<#type_arguments>::from_html(#selector_lit, #root_element_ref_ident.clone()))
-                    } else {
-                        quote!(#type_ident::get_elem_by_selector_and_html(#selector_lit)(#root_element_ref_ident.clone()))
+                    match get_vec_elem_type(type_ident, type_arguments) {
+                        Some(ty) => quote!(#type_ident::<#ty>::from_html_ref(#selector_lit, #root_element_ref_ident.clone())),
+                        None => quote!(#type_ident::from_selector_and_html(#selector_lit, #root_element_ref_ident.clone()))
                     }
                 }
             }
         }
         None => {
-            if is_vec(type_ident, type_arguments) {
-                panic!("vec field must has selector!")
-            }
-            match macro_attr.attr {
-                Some(attr_lit) => {
-                    let attr_value = get_lit_str_value(&attr_lit);
-                    if &attr_value == ATTR_INNER_TEXT {
-                        quote!(#type_ident::get_elem_by_inner_text(#root_element_ref_ident.clone()))
-                    } else {
-                        quote!(#type_ident::get_elem_by_attr(#attr_lit)(#root_element_ref_ident.clone()))
+            match get_vec_elem_type(type_ident, type_arguments) {
+                Some(_) => panic!("vec field must has selector!"),
+                None => match macro_attr.attr {
+                    Some(attr_lit) => {
+                        let attr_value = get_lit_str_value(&attr_lit);
+                        if &attr_value == ATTR_INNER_TEXT {
+                            quote!(#type_ident::from_inner_text(#root_element_ref_ident.clone()))
+                        } else {
+                            quote!(#type_ident::from_attr(#attr_lit, #root_element_ref_ident.clone()))
+                        }
                     }
-                }
-                None => {
-                    quote!(#type_ident::get_elem_by_html(#root_element_ref_ident.clone()))
+                    None => {
+                        quote!(#type_ident::from_html_ref(#root_element_ref_ident.clone()))
+                    }
                 }
             }
         }
     }
 }
 
-fn is_vec(type_ident: &syn::Ident, type_arguments: &syn::PathArguments) -> bool {
-    if let &syn::PathArguments::AngleBracketed(ref angle_bracket) = type_arguments {
-        type_ident == TYPE_VEC && !type_arguments.is_empty()
-    }
-    false
-}
-
 fn check_type_arguments(type_ident: &syn::Ident, type_arguments: &syn::PathArguments) {
-    if !is_vec(type_ident, type_arguments) && !type_arguments.is_empty() {
+    if get_vec_elem_type(type_ident, type_arguments) == None && !type_arguments.is_empty() {
         panic!("field cannot be generic except for Vec<T>");
     }
 }
@@ -153,7 +142,7 @@ fn get_vec_elem_type<'a>(type_ident: &syn::Ident, type_arguments: &'a syn::PathA
     if let &syn::PathArguments::AngleBracketed(ref angle_bracket) = type_arguments {
         if type_ident == TYPE_VEC && !type_arguments.is_empty() {
             if let syn::GenericArgument::Type(ty) = angle_bracket.args.first()?.value() {
-                Some(ty)
+                return Some(ty);
             }
         }
     }
