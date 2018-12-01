@@ -3,7 +3,7 @@ use scraper::Html;
 use scraper::Selector;
 
 #[test]
-fn test_get_elem_by_selector_and_attr() {
+fn test_from_selector_and_attr() {
     let html = Html::parse_fragment(r#"
     <!DOCTYPE html>
 <html lang="en">
@@ -19,12 +19,12 @@ fn test_get_elem_by_selector_and_attr() {
 </html>
     "#);
     let selector = Selector::parse("#test").unwrap();
-    let result = u8::get_elem_by_selector_and_attr("a", "href")(html.select(&selector).next().unwrap()).unwrap();
+    let result = u8::from_selector_and_attr("a", "href", html.select(&selector).next().unwrap()).unwrap();
     assert_eq!(1u8, result);
 }
 
 #[test]
-fn test_get_elem_by_selector_and_inner_text() {
+fn test_from_selector_and_inner_text() {
     let html = Html::parse_fragment(r#"
     <!DOCTYPE html>
 <html lang="en">
@@ -40,12 +40,12 @@ fn test_get_elem_by_selector_and_inner_text() {
 </html>
     "#);
     let selector = Selector::parse("#test").unwrap();
-    let result = u8::get_elem_by_selector_and_inner_text("a")(html.select(&selector).next().unwrap()).unwrap();
+    let result = u8::from_selector_and_inner_text("a", html.select(&selector).next().unwrap()).unwrap();
     assert_eq!(1u8, result);
 }
 
 #[test]
-fn test_get_elem_by_selector_and_html() {
+fn test_from_selector_and_html() {
     let html = Html::parse_fragment(r#"
     <!DOCTYPE html>
 <html lang="en">
@@ -61,12 +61,12 @@ fn test_get_elem_by_selector_and_html() {
 </html>
     "#);
     let selector = Selector::parse("#test").unwrap();
-    let result = String::get_elem_by_selector_and_html("a")(html.select(&selector).next().unwrap()).unwrap();
+    let result = String::from_selector_and_html("a", html.select(&selector).next().unwrap()).unwrap();
     assert_eq!("<a>1</a>".to_string(), result);
 }
 
 #[test]
-fn test_get_elem_by_attr() {
+fn test_from_attr() {
     let html = Html::parse_fragment(r#"
     <!DOCTYPE html>
 <html lang="en">
@@ -82,12 +82,12 @@ fn test_get_elem_by_attr() {
 </html>
     "#);
     let selector = Selector::parse("#test > a").unwrap();
-    let result = u8::get_elem_by_attr("href")(html.select(&selector).next().unwrap()).unwrap();
+    let result = u8::from_attr("href", html.select(&selector).next().unwrap()).unwrap();
     assert_eq!(1u8, result);
 }
 
 #[test]
-fn test_get_elem_by_inner_text() {
+fn test_from_inner_text() {
     let html = Html::parse_fragment(r#"
     <!DOCTYPE html>
 <html lang="en">
@@ -103,12 +103,12 @@ fn test_get_elem_by_inner_text() {
 </html>
     "#);
     let selector = Selector::parse("#test > a").unwrap();
-    let result = u8::get_elem_by_inner_text(html.select(&selector).next().unwrap()).unwrap();
+    let result = u8::from_inner_text(html.select(&selector).next().unwrap()).unwrap();
     assert_eq!(1u8, result);
 }
 
 #[test]
-fn test_get_elem_by_html() {
+fn test_from_html_ref() {
     let html = Html::parse_fragment(r#"
     <!DOCTYPE html>
 <html lang="en">
@@ -124,6 +124,6 @@ fn test_get_elem_by_html() {
 </html>
     "#);
     let selector = Selector::parse("#test > a").unwrap();
-    let result = String::get_elem_by_html(html.select(&selector).next().unwrap()).unwrap();
+    let result = String::from_html_ref(html.select(&selector).next().unwrap()).unwrap();
     assert_eq!("<a>1</a>".to_string(), result);
 }
