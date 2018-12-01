@@ -1,5 +1,5 @@
 use super::{DefaultUser, SingleUser, TestUsers};
-use unhtml_util::*;
+use unhtml::*;
 
 #[test]
 fn it_works() {
@@ -8,7 +8,7 @@ fn it_works() {
 
 #[test]
 fn test_default_value() {
-    let user: DefaultUser = DefaultUser::from_str("").unwrap();
+    let user: DefaultUser = DefaultUser::from_html("").unwrap();
     assert_eq!("Hexilee".to_string(), user.name);
     assert_eq!(20, user.age);
     assert_eq!(-1000, user.assets);
@@ -17,7 +17,7 @@ fn test_default_value() {
 
 #[test]
 fn test_single_user() {
-    let user: SingleUser = SingleUser::from_str(r#"<!DOCTYPE html>
+    let user: SingleUser = SingleUser::from_html(r#"<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -40,7 +40,7 @@ fn test_single_user() {
 
 #[test]
 fn test_users_parse() {
-    let users: TestUsers = TestUsers::from_str(r#"<!DOCTYPE html>
+    let users: TestUsers = TestUsers::from_html(r#"<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -61,9 +61,12 @@ fn test_users_parse() {
     </div>
 </body>
 </html>"#).unwrap();
-    let hexilee = users[0];
-    let big_brother = users[1];
+    let hexilee = &users.users[0];
+    let big_brother = &users.users[1];
     assert_eq!("Hexilee".to_string(), hexilee.name);
     assert_eq!(20, hexilee.age);
     assert!(hexilee.like_lemon);
+    assert_eq!("BigBrother".to_string(), big_brother.name);
+    assert_eq!(21, big_brother.age);
+    assert!(!big_brother.like_lemon);
 }

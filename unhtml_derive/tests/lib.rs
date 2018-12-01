@@ -10,7 +10,7 @@ use unhtml::*;
 mod test;
 
 // default test case
-#[unhtml]
+#[derive(FromHtml)]
 struct DefaultUser {
     // invoke String::from
     #[html(selector = "#non-exist", default = "Hexilee")]
@@ -28,7 +28,7 @@ struct DefaultUser {
     like_lemon: bool,
 }
 
-#[unhtml]
+#[derive(FromHtml)]
 #[html(selector = "#test")]
 struct SingleUser {
     #[html(selector = "p:nth-child(1)", attr = "value")]
@@ -41,7 +41,7 @@ struct SingleUser {
     like_lemon: bool,
 }
 
-#[unhtml]
+#[derive(FromHtml)]
 struct TestUser {
     #[html(selector = "p:nth-child(1)", attr = "value")]
     name: String,
@@ -53,7 +53,7 @@ struct TestUser {
     like_lemon: bool,
 }
 
-#[unhtml]
+#[derive(FromHtml)]
 #[html(selector = "#test")]
 struct TestUsers {
     #[html(selector = "div")]

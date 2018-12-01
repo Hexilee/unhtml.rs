@@ -21,7 +21,7 @@ pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
                 ParseError::SelectOrAttrEmptyErr { attr: "selector".to_string(), value: #selector.to_string() }
             )?;)
         }
-        None => quote!(let #root_element_ref_ident = #doc_ident.root_element_ref();)
+        None => quote!(let #root_element_ref_ident = #doc_ident.root_element();)
     };
     let result_recurse = match ast.data {
         syn::Data::Struct(ref data_struct) => data_struct.fields.iter().map(get_field_token_stream(root_element_ref_ident.clone())),
