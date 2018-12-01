@@ -2,8 +2,6 @@ use syn::{Lit, Attribute};
 use proc_macro2::TokenStream;
 use scraper::Selector;
 use unhtml::{HTML_IDENT, SELECTOR_IDENT, ATTR_IDENT, DEFAULT_IDENT, ATTR_INNER_TEXT};
-
-const TYPE_STRING: &str = "String";
 const TYPE_VEC: &str = "Vec";
 
 pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
@@ -63,11 +61,8 @@ fn get_field_token_stream(root_element_ref_ident: TokenStream) -> impl Fn(&syn::
 fn get_match_block_token_stream(type_ident: &syn::Ident, result_token_stream: TokenStream, default: Option<Lit>) -> TokenStream {
     match default {
         Some(lit) => {
-            let lit_token_stream = if type_ident == TYPE_STRING {
-                // String::from_str() return String instead of Result<String, Self::Err>
-                quote!(#type_ident::from(#lit))
-            } else if let Lit::Str(_) = lit {
-                quote!(#type_ident::from_str(#lit)?)
+            let lit_token_stream = if let Lit::Str(_) = lit {
+                quote!(#type_ident::from_html(#lit)?)
             } else {
                 quote!(#type_ident::from(#lit))
             };
