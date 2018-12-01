@@ -1,20 +1,21 @@
-#![feature(extern_crate_item_prelude)]
-extern crate proc_macro;
-extern crate proc_macro2;
+#![feature(custom_attribute)]
 #[macro_use]
-extern crate syn;
-extern crate scraper;
-#[macro_use]
-extern crate quote;
-extern crate unhtml_util;
+extern crate failure_derive;
 
 #[cfg(test)]
 mod test;
-mod implement;
-use syn::ItemStruct;
-
-#[proc_macro_attribute]
-pub fn unhtml(_args: proc_macro::TokenStream, input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let input = parse_macro_input!(input as ItemStruct);
-    proc_macro::TokenStream::from(implement::impl_un_html(&input))
-}
+mod err;
+mod traits;
+mod polyfill;
+pub use self::err::*;
+pub use scraper::{Selector, Html};
+pub use self::traits::*;
+pub use std::str::FromStr;
+pub use self::polyfill::*;
+pub use failure;
+pub const HTML_IDENT: &str = "html";
+pub const SELECTOR_IDENT: &str = "selector";
+pub const ATTR_IDENT: &str = "attr";
+pub const DEFAULT_IDENT: &str = "default";
+pub const EQUAL_PUNCT: char = '=';
+pub const ATTR_INNER_TEXT: &str = "value";
