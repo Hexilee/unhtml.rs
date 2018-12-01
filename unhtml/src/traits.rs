@@ -1,8 +1,10 @@
 use scraper::Selector;
+use scraper::Html;
 use scraper::ElementRef;
 use std::str::FromStr;
 use failure::Error;
 use super::err::ParseError;
+use super::polyfill::*;
 
 pub trait FromHtml: Sized {
     fn from_selector_and_attr(selector_str: &str, attr: &str, elem_ref: ElementRef) -> Result<Self, Error> {
@@ -66,10 +68,14 @@ pub trait VecFromHtml {
         })
     }
 
-    fn from_html(selector_str: &str, root_element_ref: ElementRef) -> Result<Vec<Self::Elem>, Error> {
+    fn from_html_ref(selector_str: &str, root_element_ref: ElementRef) -> Result<Vec<Self::Elem>, Error> {
         Self::vec_from(selector_str, root_element_ref, |element_ref| {
             Ok(Self::Elem::from_html(&element_ref.html())?)
         })
+    }
+
+    fn from_html(selector_str: &str, html: &str) -> Result<Vec<Self::Elem>, Error> {
+        Self::from_html_ref(selector_str, Html::parse_fragment(html).root_element())
     }
 
     fn vec_from<GetElemFun>(selector_str: &str, root_element_ref: ElementRef, get_elem_fun: GetElemFun) -> Result<Vec<Self::Elem>, Error>
