@@ -19,7 +19,7 @@ derive for crate unhtml [![Crate version](https://img.shields.io/crates/v/unhtml
 #[macro_use]
 extern crate unhtml_derive;
 extern crate unhtml;
-use unhtml::*;
+use unhtml::{self, FromHtml};
 
 #[derive(FromHtml)]
 #[html(selector = "#test")]
@@ -57,6 +57,11 @@ assert!(user.like_lemon);
 
 #### Attributes
 ##### html
+
+###### target
+
+`derive target` or `field`
+
 ###### specification
 
 
@@ -70,7 +75,7 @@ This is valid
 #[macro_use]
 extern crate unhtml_derive;
 extern crate unhtml;
-use unhtml::*;
+use unhtml::{self, FromHtml};
 
 
 #[derive(FromHtml)]
@@ -80,12 +85,12 @@ struct SingleString {
 ```
 
 
+##### selector
+
 ###### target
 
-derive target itself or field
+`derive target` or `field`
 
-
-##### selector
 
 ###### literal type
 
@@ -99,7 +104,7 @@ selector must be a invalid css-selector, invalid selector will cause a compile-t
 #[macro_use]
 extern crate unhtml_derive;
 extern crate unhtml;
-use unhtml::*;
+use unhtml::{self, FromHtml};
 
 #[derive(FromHtml)]
 #[html(selector = "<>")]
@@ -119,41 +124,27 @@ struct SingleUser {
 }
 ```
 
-###### target
-
-attribute target can be derive target itself or field
-
 ###### default behavior
 
-assign value of its root element
+html of its root element
 
 ```rust
 
 #[macro_use]
 extern crate unhtml_derive;
 extern crate unhtml;
-use unhtml::*;
+use unhtml::{self, FromHtml};
 
 #[derive(FromHtml)]
-#[html(selector = "#test")]
 struct Link {
     #[html(attr = "href")]
     href: String,
-    
+
     #[html(attr = "value")]
     value: String,
 }
 
-let link = Link::from_html(r#"<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <a id="test" href="https://github.com">Github</p>
-</body>
-</html>"#).unwrap();
+let link = Link::from_html(r#"<a href="https://github.com">Github</a>"#).unwrap();
 assert_eq!("https://github.com".to_string(), link.href);
 assert_eq!("Github".to_string(), link.value);
 ```
@@ -161,7 +152,67 @@ assert_eq!("Github".to_string(), link.value);
 
 ##### attr
 
+###### target
+
+`field`
+
+
+###### literal type
+
+`string`
+
+###### specification
+
+- `value` refer to `innerHtml`
+- any other `attr` refer to `html element attribute`
+
+```rust
+#[macro_use]
+extern crate unhtml_derive;
+extern crate unhtml;
+use unhtml::{self, FromHtml};
+
+#[derive(FromHtml)]
+struct Link {
+    #[html(attr = "href")]
+    href: String,
+
+    #[html(attr = "value")]
+    value: String,
+}
+
+let link = Link::from_html(r#"<a href="https://github.com">Github</a>"#).unwrap();
+assert_eq!("https://github.com".to_string(), link.href);
+assert_eq!("Github".to_string(), link.value);
+```
+
 ##### default
+
+html of element (not innerHtml!)
+
+```rust
+#[macro_use]
+extern crate unhtml_derive;
+extern crate unhtml;
+use unhtml::{self, FromHtml};
+
+#[derive(FromHtml)]
+struct Link {
+    #[html(attr = "href")]
+    href: String,
+
+    #[html(attr = "value")]
+    value: String,
+    
+    source: String,
+}
+
+let link = Link::from_html(r#"<a href="https://github.com">Github</a>"#).unwrap();
+assert_eq!("https://github.com".to_string(), link.href);
+assert_eq!("Github".to_string(), link.value);
+assert_eq!(r#"<a href="https://github.com">Github</a>"#, &link.source);
+```
+
 
 #### Field Type
 
