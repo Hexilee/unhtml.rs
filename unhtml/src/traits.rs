@@ -1,10 +1,9 @@
-use scraper::Selector;
-use scraper::Html;
-use scraper::ElementRef;
+use scraper::{ElementRef, Selector, Html};
 use std::str::FromStr;
 use failure::Error;
 use super::err::DeserializeError;
 use super::polyfill::*;
+use super::util;
 
 /// Deserialize from html
 pub trait FromHtml: Sized {
@@ -183,10 +182,36 @@ pub trait FromHtml: Sized {
     fn from_html(html: &str) -> Result<Self, Error>;
 }
 
+/// Deserialize `Vec<T>` from html where `T`implemented `FromHtml`
 pub trait VecFromHtml {
     type Elem: FromHtml;
+
+    /// # Examples
+    /// ```
+    /// use unhtml::*;
+    /// let html = Html::parse_fragment(r#"
+    /// <!DOCTYPE html>
+    /// <html lang="en">
+    /// <head>
+    ///     <meta charset="UTF-8">
+    ///     <title>Title</title>
+    /// </head>
+    /// <body>
+    ///     <div id="test">
+    ///         <a href="1"></a>
+    ///         <a href="2"></a>
+    ///         <a href="3"></a>
+    ///     </div>
+    /// </body>
+    /// </html>
+    /// "#);
+    /// let results = Vec::<u8>::from_attr("#test > a", "href", html.root_element()).unwrap();
+    /// assert_eq!(1u8, results[0]);
+    /// assert_eq!(2u8, results[1]);
+    /// assert_eq!(3u8, results[2]);
+    /// ```
     fn from_attr(selector_str: &str, attr: &str, root_element_ref: ElementRef) -> Result<Vec<Self::Elem>, Error> {
-        Self::vec_from(selector_str, root_element_ref, |element_ref| {
+        util::vec_from(selector_str, root_element_ref, |element_ref| {
             Ok(Self::Elem::from_html(
                 element_ref.value().attr(attr).ok_or(
                     DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string() }
@@ -195,34 +220,93 @@ pub trait VecFromHtml {
         })
     }
 
+    /// # Examples
+    /// ```
+    /// use unhtml::*;
+    /// let html = Html::parse_fragment(r#"
+    /// <!DOCTYPE html>
+    /// <html lang="en">
+    /// <head>
+    ///     <meta charset="UTF-8">
+    ///     <title>Title</title>
+    /// </head>
+    /// <body>
+    ///     <div id="test">
+    ///         <a>1</a>
+    ///         <a>2</a>
+    ///         <a>3</a>
+    ///     </div>
+    /// </body>
+    /// </html>
+    /// "#);
+    /// let results = Vec::<u8>::from_inner_text("#test > a", html.root_element()).unwrap();
+    /// assert_eq!(1u8, results[0]);
+    /// assert_eq!(2u8, results[1]);
+    /// assert_eq!(3u8, results[2]);
+    /// ```
     fn from_inner_text(selector_str: &str, root_element_ref: ElementRef) -> Result<Vec<Self::Elem>, Error> {
-        Self::vec_from(selector_str, root_element_ref, |element_ref| {
+        util::vec_from(selector_str, root_element_ref, |element_ref| {
             Ok(Self::Elem::from_html(&element_ref.inner_html())?)
         })
     }
 
+    /// # Examples
+    /// ```
+    /// use unhtml::*;
+    /// let html = Html::parse_fragment(r#"
+    /// <!DOCTYPE html>
+    /// <html lang="en">
+    /// <head>
+    ///     <meta charset="UTF-8">
+    ///     <title>Title</title>
+    /// </head>
+    /// <body>
+    ///     <div id="test">
+    ///         <a href="1"></a>
+    ///         <a href="2"></a>
+    ///         <a href="3"></a>
+    ///     </div>
+    /// </body>
+    /// </html>
+    /// "#);
+    /// let results = Vec::<String>::from_html_ref("#test > a", html.root_element()).unwrap();
+    /// assert_eq!(r#"<a href="1"></a>"#, results[0]);
+    /// assert_eq!(r#"<a href="2"></a>"#, results[1]);
+    /// assert_eq!(r#"<a href="3"></a>"#, results[2]);
+    /// ```
     fn from_html_ref(selector_str: &str, root_element_ref: ElementRef) -> Result<Vec<Self::Elem>, Error> {
-        Self::vec_from(selector_str, root_element_ref, |element_ref| {
+        util::vec_from(selector_str, root_element_ref, |element_ref| {
             Ok(Self::Elem::from_html(&element_ref.html())?)
         })
     }
 
+    /// # Examples
+    /// ```
+    /// use unhtml::*;
+    /// let results = Vec::<String>::from_html("#test > a", r#"
+    /// <!DOCTYPE html>
+    /// <html lang="en">
+    /// <head>
+    ///     <meta charset="UTF-8">
+    ///     <title>Title</title>
+    /// </head>
+    /// <body>
+    ///     <div id="test">
+    ///         <a href="1"></a>
+    ///         <a href="2"></a>
+    ///         <a href="3"></a>
+    ///     </div>
+    /// </body>
+    /// </html>
+    /// "#).unwrap();
+    /// assert_eq!(r#"<a href="1"></a>"#, results[0]);
+    /// assert_eq!(r#"<a href="2"></a>"#, results[1]);
+    /// assert_eq!(r#"<a href="3"></a>"#, results[2]);
+    /// ```
     fn from_html(selector_str: &str, html: &str) -> Result<Vec<Self::Elem>, Error> {
         Self::from_html_ref(selector_str, Html::parse_fragment(html).root_element())
     }
-
-    fn vec_from<GetElemFun>(selector_str: &str, root_element_ref: ElementRef, get_elem_fun: GetElemFun) -> Result<Vec<Self::Elem>, Error>
-        where GetElemFun: Fn(ElementRef) -> Result<Self::Elem, Error> {
-        let selector = Selector::parse(selector_str).unwrap();
-        let selects = root_element_ref.select(&selector);
-        let mut list = Vec::new();
-        for elem_ref in selects {
-            list.push(get_elem_fun(elem_ref)?);
-        }
-        Ok(list)
-    }
 }
-
 
 impl<E, T> FromHtml for T
     where E: std::error::Error + Send + Sync + 'static,

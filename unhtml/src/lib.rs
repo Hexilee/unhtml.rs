@@ -7,6 +7,7 @@ mod test;
 mod err;
 mod traits;
 mod polyfill;
+mod util;
 pub use self::err::*;
 pub use scraper::{Selector, Html};
 pub use self::traits::*;
