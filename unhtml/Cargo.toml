@@ -4,9 +4,9 @@ version = "0.1.0"
 authors = ["Hexilee <hexileee@gmail.com>"]
 edition = "2018"
 license = "MIT"
-description = "some utility traits and functions for unhtml"
+description = "deserializor from html"
 repository = "https://github.com/Hexilee/unhtml.rs"
-keywords = ["unhtml", "html"]
+keywords = ["unhtml", "html", "deserializor"]
 categories = ["encoding"]
 
 [dependencies]
