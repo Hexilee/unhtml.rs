@@ -1,9 +1,9 @@
-use super::{DefaultUser, SingleUser, TestUsers};
+use super::{DefaultUser, SingleUser, TestUsers, Link};
 use unhtml::*;
 
 #[test]
 fn test_default_value() {
-    let user: DefaultUser = DefaultUser::from_html("").unwrap();
+    let user = DefaultUser::from_html("").unwrap();
     assert_eq!("Hexilee".to_string(), user.name);
     assert_eq!(20, user.age);
     assert_eq!(-1000, user.assets);
@@ -12,7 +12,7 @@ fn test_default_value() {
 
 #[test]
 fn test_single_user() {
-    let user: SingleUser = SingleUser::from_html(r#"<!DOCTYPE html>
+    let user = SingleUser::from_html(r#"<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -34,8 +34,15 @@ fn test_single_user() {
 }
 
 #[test]
+fn test_link() {
+    let link = Link::from_html(r#"<a href="https://github.com">Github</a>"#).unwrap();
+    assert_eq!("https://github.com".to_string(), link.href);
+    assert_eq!("Github".to_string(), link.value);
+}
+
+#[test]
 fn test_users_parse() {
-    let users: TestUsers = TestUsers::from_html(r#"<!DOCTYPE html>
+    let users = TestUsers::from_html(r#"<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">

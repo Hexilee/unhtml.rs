@@ -40,6 +40,15 @@ struct SingleUser {
 }
 
 #[derive(FromHtml)]
+struct Link {
+    #[html(attr = "href")]
+    href: String,
+
+    #[html(attr = "value")]
+    value: String,
+}
+
+#[derive(FromHtml)]
 struct TestUser {
     #[html(selector = "p:nth-child(1)", attr = "value")]
     name: String,
