@@ -9,7 +9,8 @@ pub trait FromHtml: Sized {
     /// # Examples
     ///
     /// ```
-    /// use unhtml::*;
+    /// use unhtml::scraper::{Html, Selector};
+    /// use unhtml::FromHtml;
     /// let html = Html::parse_fragment(r#"
     ///     <!DOCTYPE html>
     /// <html lang="en">
@@ -41,7 +42,8 @@ pub trait FromHtml: Sized {
     /// # Examples
     ///
     /// ```
-    /// use unhtml::*;
+    /// use unhtml::scraper::{Html, Selector};
+    /// use unhtml::FromHtml;
     /// let html = Html::parse_fragment(r#"
     /// <body>
     ///     <div id="test">
@@ -64,7 +66,8 @@ pub trait FromHtml: Sized {
     /// # Examples
     ///
     /// ```
-    /// use unhtml::*;
+    /// use unhtml::scraper::{Html, Selector};
+    /// use unhtml::FromHtml;
     /// let html = Html::parse_fragment(r#"
     ///     <!DOCTYPE html>
     /// <html lang="en">
@@ -94,7 +97,8 @@ pub trait FromHtml: Sized {
     /// # Examples
     ///
     /// ```
-    /// use unhtml::*;
+    /// use unhtml::scraper::{Html, Selector};
+    /// use unhtml::FromHtml;
     /// let html = Html::parse_fragment(r#"
     ///     <!DOCTYPE html>
     /// <html lang="en">
@@ -122,7 +126,8 @@ pub trait FromHtml: Sized {
     /// # Examples
     ///
     /// ```
-    /// use unhtml::*;
+    /// use unhtml::scraper::{Html, Selector};
+    /// use unhtml::FromHtml;
     /// let html = Html::parse_fragment(r#"
     ///     <!DOCTYPE html>
     /// <html lang="en">
@@ -148,7 +153,8 @@ pub trait FromHtml: Sized {
     /// # Examples
     ///
     /// ```
-    /// use unhtml::*;
+    /// use unhtml::scraper::{Html, Selector};
+    /// use unhtml::FromHtml;
     /// let html = Html::parse_fragment(r#"
     /// <!DOCTYPE html>
     /// <html lang="en">
@@ -174,7 +180,7 @@ pub trait FromHtml: Sized {
     /// implemented by default for all types that implemented `FromStr<Err=E> where E: std::error::Error`
     /// # Examples
     /// ```
-    /// use unhtml::*;
+    /// use unhtml::FromHtml;
     /// let result = u8::from_html("1").unwrap();
     /// assert_eq!(1u8, result);
     /// ```
@@ -187,7 +193,8 @@ pub trait VecFromHtml {
 
     /// # Examples
     /// ```
-    /// use unhtml::*;
+    /// use unhtml::scraper::{Html};
+    /// use unhtml::VecFromHtml;
     /// let html = Html::parse_fragment(r#"
     /// <!DOCTYPE html>
     /// <html lang="en">
@@ -221,7 +228,8 @@ pub trait VecFromHtml {
 
     /// # Examples
     /// ```
-    /// use unhtml::*;
+    /// use unhtml::scraper::{Html};
+    /// use unhtml::VecFromHtml;
     /// let html = Html::parse_fragment(r#"
     /// <!DOCTYPE html>
     /// <html lang="en">
@@ -251,7 +259,8 @@ pub trait VecFromHtml {
 
     /// # Examples
     /// ```
-    /// use unhtml::*;
+    /// use unhtml::scraper::{Html};
+    /// use unhtml::VecFromHtml;
     /// let html = Html::parse_fragment(r#"
     /// <!DOCTYPE html>
     /// <html lang="en">
@@ -281,7 +290,7 @@ pub trait VecFromHtml {
 
     /// # Examples
     /// ```
-    /// use unhtml::*;
+    /// use unhtml::VecFromHtml;
     /// let results = Vec::<String>::from_html("#test > a", r#"
     /// <!DOCTYPE html>
     /// <html lang="en">

@@ -36,7 +36,8 @@
 //! As `FromHtml` is implemented for `u8` by default
 //!
 //! ```rust
-//! use unhtml::*;
+//! use unhtml::scraper::Html;
+//! use unhtml::VecFromHtml;
 //! let html = Html::parse_fragment(r#"
 //! <!DOCTYPE html>
 //! <html lang="en">

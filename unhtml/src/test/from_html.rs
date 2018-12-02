@@ -127,19 +127,3 @@ fn test_from_html_ref() {
     let result = String::from_html_ref(html.select(&selector).next().unwrap()).unwrap();
     assert_eq!("<a>1</a>".to_string(), result);
 }
-
-#[test]
-fn test_parse_fragment() {
-    let html = Html::parse_fragment(r#"
-        <div id="test">
-            <a>1</a>
-        </div>
-    "#);
-    println!("name: {}", html.root_element().value().name());
-    println!("root_element: {}", html.root_element().html());
-    for child in html.root_element().children() {
-        if child.value().is_element() {
-            println!("{}", scraper::ElementRef::wrap(child).unwrap().html());
-        }
-    }
-}
