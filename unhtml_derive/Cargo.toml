@@ -6,8 +6,10 @@ edition = "2018"
 license = "MIT"
 description = "proc macro derive for unhtml"
 repository = "https://github.com/Hexilee/unhtml.rs"
-keywords = ["unhtml", "html", "deserializor"]
+keywords = ["unhtml", "html", "deserializor", "derive"]
 categories = ["encoding"]
+readme = "README.md"
+documentation = "https://docs.rs/unhtml_derive"
 
 [lib]
 proc-macro = true
@@ -19,3 +21,6 @@ quote = "0.6.10"
 proc-macro2 = "0.4.24"
 synstructure = "0.10.1"
 unhtml = { path = "../unhtml" }
+
+[badges]
+travis-ci = { repository = "Hexilee/unhtml.rs", branch = "master" }
