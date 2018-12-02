@@ -39,11 +39,11 @@ Table of Contents
     * [without top selector](#without-top-selector)
 
 
-#### Derive Target
+### Derive Target
 
 `struct`
 
-#### Basic Usage
+### Basic Usage
 
 ```rust
 #[macro_use]
@@ -85,14 +85,14 @@ assert_eq!(20, user.age);
 assert!(user.like_lemon);
 ```
 
-#### Attributes
-##### html
+### Attributes
+#### html
 
-###### target
+##### target
 
 `derive target` or `field`
 
-###### specification
+##### specification
 
 
 `#[html(selector = "...", attr = "...", default = ...)]`
@@ -115,18 +115,18 @@ struct SingleString {
 ```
 
 
-##### selector
+#### selector
 
-###### target
+##### target
 
 `derive target` or `field`
 
 
-###### literal type
+##### literal type
 
 `string`
 
-###### specification
+##### specification
 
 selector must be a invalid css-selector, invalid selector will cause a compile-time panic
 
@@ -184,7 +184,7 @@ assert_eq!("Github", &link.value);
 ```
 
 
-###### default behavior
+##### default behavior
 
 html of its root element
 
@@ -210,18 +210,18 @@ assert_eq!("Github", &link.value);
 ```
 
 
-##### attr
+#### attr
 
-###### target
+##### target
 
 `field`
 
 
-###### literal type
+##### literal type
 
 `string`
 
-###### specification
+##### specification
 
 - `value` refer to `innerHtml`
 - any other `attr` refer to `html element attribute`
@@ -246,7 +246,7 @@ assert_eq!("https://github.com", &link.href);
 assert_eq!("Github", &link.value);
 ```
 
-###### default behavior
+##### default behavior
 
 html of the whole element (not `innerHtml`!)
 
@@ -273,17 +273,17 @@ assert_eq!("Github", &link.value);
 assert_eq!(r#"<a href="https://github.com">Github</a>"#, &link.source);
 ```
 
-##### default
+#### default
 
-###### target
+##### target
 
 `field`
 
-###### literal type
+##### literal type
 
 any `literal type`
 
-###### specification
+##### specification
 
 - the same type with `field`
 
@@ -347,7 +347,7 @@ assert_eq!("https://github.com", &link.href);
 assert_eq!("Github", &link.value);
 ```
 
-###### default behavior
+##### default behavior
 
 return a Err(unhtml::failure::Error) when selected nothing
 
@@ -371,9 +371,9 @@ struct Link {
 let link = Link::from_html(r#"<a>Github</a>"#).unwrap();
 ```
 
-#### Field Type
+### Field Type
 
-###### any sized path type, without generics
+##### any sized path type, without generics
 
 ```rust,should_panic
 // panic
@@ -420,7 +420,7 @@ struct Website {
 }
 ```
 
-###### Vec
+##### Vec
 
 > Should `use unhtml::VecFromHtml`
 
@@ -530,9 +530,9 @@ assert_eq!(21, big_brother.age);
 assert!(!big_brother.like_lemon);
 ```
 
-#### Source HTML
+### Source HTML
 
-###### with top selector
+##### with top selector
 all source html will be parsed as `fragment`. The top element is `html` and there is no `DOCTYPE`, `head` or `body`.
 
 ```html,ignore
@@ -620,7 +620,7 @@ let dicument = Document::from_html(r#"<!DOCTYPE html>
 </html>"#).unwrap();
 ```
 
-###### without top selector
+##### without top selector
 
 when derived struct doesn't have `top selector`, all source html will be parsed as `pure fragment`. There is no `DOCTYPE`, `html`, `head` or `body`.
 

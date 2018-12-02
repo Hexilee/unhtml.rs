@@ -1,4 +1,4 @@
-//! ### unhtml_derive
+//! ## unhtml_derive
 //!
 //! [![Build status](https://img.shields.io/travis/Hexilee/unhtml.rs/master.svg)](https://travis-ci.org/Hexilee/unhtml.rs)
 //! [![Crate version](https://img.shields.io/crates/v/unhtml_derive.svg)](https://crates.io/crates/unhtml_derive)
@@ -40,11 +40,11 @@
 //!     * [with top selector](#with-top-selector)
 //!     * [without top selector](#without-top-selector)
 //!
-//! #### Derive Target
+//! ### Derive Target
 //!
 //! `struct`
 //!
-//! #### Basic Usage
+//! ### Basic Usage
 //!
 //! ```rust,ignore
 //! #[macro_use]
@@ -86,14 +86,14 @@
 //! assert!(user.like_lemon);
 //! ```
 //!
-//! #### Attributes
-//! ##### html
+//! ### Attributes
+//! #### html
 //!
-//! ###### target
+//! ##### target
 //!
 //! `derive target` or `field`
 //!
-//! ###### specification
+//! ##### specification
 //!
 //!
 //! `#[html(selector = "...", attr = "...", default = ...)]`
@@ -116,18 +116,18 @@
 //! ```
 //!
 //!
-//! ##### selector
+//! #### selector
 //!
-//! ###### target
+//! ##### target
 //!
 //! `derive target` or `field`
 //!
 //!
-//! ###### literal type
+//! ##### literal type
 //!
 //! `string`
 //!
-//! ###### specification
+//! ##### specification
 //!
 //! selector must be a invalid css-selector, invalid selector will cause a compile-time panic
 //!
@@ -185,7 +185,7 @@
 //! ```
 //!
 //!
-//! ###### default behavior
+//! ##### default behavior
 //!
 //! html of its root element
 //!
@@ -211,18 +211,18 @@
 //! ```
 //!
 //!
-//! ##### attr
+//! #### attr
 //!
-//! ###### target
+//! ##### target
 //!
 //! `field`
 //!
 //!
-//! ###### literal type
+//! ##### literal type
 //!
 //! `string`
 //!
-//! ###### specification
+//! ##### specification
 //!
 //! - `value` refer to `innerHtml`
 //! - any other `attr` refer to `html element attribute`
@@ -247,7 +247,7 @@
 //! assert_eq!("Github", &link.value);
 //! ```
 //!
-//! ###### default behavior
+//! ##### default behavior
 //!
 //! html of the whole element (not `innerHtml`!)
 //!
@@ -274,17 +274,17 @@
 //! assert_eq!(r#"<a href="https://github.com">Github</a>"#, &link.source);
 //! ```
 //!
-//! ##### default
+//! #### default
 //!
-//! ###### target
+//! ##### target
 //!
 //! `field`
 //!
-//! ###### literal type
+//! ##### literal type
 //!
 //! any `literal type`
 //!
-//! ###### specification
+//! ##### specification
 //!
 //! - the same type with `field`
 //!
@@ -348,7 +348,7 @@
 //! assert_eq!("Github", &link.value);
 //! ```
 //!
-//! ###### default behavior
+//! ##### default behavior
 //!
 //! return a Err(unhtml::failure::Error) when selected nothing
 //!
@@ -372,9 +372,9 @@
 //! let link = Link::from_html(r#"<a>Github</a>"#).unwrap();
 //! ```
 //!
-//! #### Field Type
+//! ### Field Type
 //!
-//! ###### any sized path type, without generics
+//! ##### any sized path type, without generics
 //!
 //! ```rust,ignore
 //! // panic
@@ -421,7 +421,7 @@
 //! }
 //! ```
 //!
-//! ###### Vec
+//! ##### Vec
 //!
 //! > Should `use unhtml::VecFromHtml`
 //!
@@ -531,9 +531,9 @@
 //! assert!(!big_brother.like_lemon);
 //! ```
 //!
-//! #### Source HTML
+//! ### Source HTML
 //!
-//! ###### with top selector
+//! ##### with top selector
 //! all source html will be parsed as `fragment`. The top element is `html` and there is no `DOCTYPE`, `head` or `body`.
 //!
 //! ```html
@@ -621,7 +621,7 @@
 //! </html>"#).unwrap();
 //! ```
 //!
-//! ###### without top selector
+//! ##### without top selector
 //!
 //! when derived struct doesn't have `top selector`, all source html will be parsed as `pure fragment`. There is no `DOCTYPE`, `html`, `head` or `body`.
 //!
