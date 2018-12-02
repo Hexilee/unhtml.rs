@@ -65,11 +65,9 @@ extern crate failure_derive;
 mod test;
 mod err;
 mod traits;
-mod polyfill;
 mod util;
 pub use self::err::*;
-pub use scraper::{Selector, Html};
+pub use scraper::{Selector, Html, ElementRef};
 pub use self::traits::*;
-pub use self::polyfill::*;
 pub use failure;
 

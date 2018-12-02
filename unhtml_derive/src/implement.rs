@@ -1,6 +1,7 @@
 use syn::{Lit, Attribute};
 use proc_macro2::TokenStream;
 use scraper::Selector;
+
 const TYPE_VEC: &str = "Vec";
 const HTML_IDENT: &str = "html";
 const SELECTOR_IDENT: &str = "selector";
@@ -20,10 +21,20 @@ pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
         Some(selector) => {
             check_selector(&selector);
             quote!(let #root_element_ref_ident = #doc_ident.select(&Selector::parse(#selector).unwrap()).next().ok_or(
-                DeserializeError::SourceNotFound { attr: "selector".to_string(), value: #selector.to_string() }
+                unhtml::DeserializeError::SourceNotFound { attr: "selector".to_string(), value: #selector.to_string() }
             )?;)
         }
-        None => quote!(let #root_element_ref_ident = #doc_ident.root_element();)
+        None => quote!(
+            let mut optional_root_element_ref = None;
+            for child in #doc_ident.root_element().children() {
+                if child.value().is_element() {
+                    optional_root_element_ref = Some(unhtml::ElementRef::wrap(child).unwrap());
+                }
+            };
+            let #root_element_ref_ident = optional_root_element_ref.ok_or (
+                unhtml::DeserializeError::SourceEmpty{source: #doc_ident.root_element().html().to_string()}
+            )?;
+        )
     };
     let result_recurse = match ast.data {
         syn::Data::Struct(ref data_struct) => data_struct.fields.iter().map(get_field_token_stream(root_element_ref_ident.clone())),

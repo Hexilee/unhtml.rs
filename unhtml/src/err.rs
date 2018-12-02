@@ -4,5 +4,9 @@ pub enum DeserializeError {
     SourceNotFound {
         attr: String,
         value: String
+    },
+    #[fail(display = "source({}) is empty", source)]
+    SourceEmpty {
+        source: String,
     }
 }

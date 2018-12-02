@@ -3,7 +3,7 @@ use unhtml::*;
 
 #[test]
 fn test_default_value() {
-    let user = DefaultUser::from_html("").unwrap();
+    let user = DefaultUser::from_html("<p></p>").unwrap();
     assert_eq!("Hexilee".to_string(), user.name);
     assert_eq!(20, user.age);
     assert_eq!(-1000, user.assets);

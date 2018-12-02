@@ -2,7 +2,6 @@ use scraper::{ElementRef, Selector, Html};
 use std::str::FromStr;
 use failure::Error;
 use super::err::DeserializeError;
-use super::polyfill::*;
 use super::util;
 
 /// Deserialize from html
