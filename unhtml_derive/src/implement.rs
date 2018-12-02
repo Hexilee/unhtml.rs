@@ -16,7 +16,7 @@ pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
         Some(selector) => {
             check_selector(&selector);
             quote!(let #root_element_ref_ident = #doc_ident.select(&Selector::parse(#selector).unwrap()).next().ok_or(
-                ParseError::SelectOrAttrEmptyErr { attr: "selector".to_string(), value: #selector.to_string() }
+                DeserializeError::SourceNotFound { attr: "selector".to_string(), value: #selector.to_string() }
             )?;)
         }
         None => quote!(let #root_element_ref_ident = #doc_ident.root_element();)
