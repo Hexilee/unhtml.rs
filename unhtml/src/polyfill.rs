@@ -1,6 +1,7 @@
 use scraper::Html;
 use scraper::ElementRef;
 
+/// polyfill for scraper::Html
 pub trait RootElementRef {
     fn root_element(&self) -> ElementRef;
 }
