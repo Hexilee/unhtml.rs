@@ -68,18 +68,18 @@ fn test_from_selector_and_html() {
 #[test]
 fn test_from_attr() {
     let html = Html::parse_fragment(r#"
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <div id="test">
-        <a href="1"></a>
-    </div>
-</body>
-</html>
+        <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <body>
+        <div id="test">
+            <a href="1"></a>
+        </div>
+    </body>
+    </html>
     "#);
     let selector = Selector::parse("#test > a").unwrap();
     let result = u8::from_attr("href", html.select(&selector).next().unwrap()).unwrap();
@@ -89,18 +89,18 @@ fn test_from_attr() {
 #[test]
 fn test_from_inner_text() {
     let html = Html::parse_fragment(r#"
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <div id="test">
-        <a>1</a>
-    </div>
-</body>
-</html>
+        <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <body>
+        <div id="test">
+            <a>1</a>
+        </div>
+    </body>
+    </html>
     "#);
     let selector = Selector::parse("#test > a").unwrap();
     let result = u8::from_inner_text(html.select(&selector).next().unwrap()).unwrap();
@@ -111,17 +111,17 @@ fn test_from_inner_text() {
 fn test_from_html_ref() {
     let html = Html::parse_fragment(r#"
     <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <div id="test">
-        <a>1</a>
-    </div>
-</body>
-</html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <body>
+        <div id="test">
+            <a>1</a>
+        </div>
+    </body>
+    </html>
     "#);
     let selector = Selector::parse("#test > a").unwrap();
     let result = String::from_html_ref(html.select(&selector).next().unwrap()).unwrap();

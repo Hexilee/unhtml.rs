@@ -40,6 +40,21 @@ pub trait FromHtml: Sized {
         )?)?)
     }
 
+    /// # Examples
+    ///
+    /// ```
+    /// use unhtml::*;
+    /// let html = Html::parse_fragment(r#"
+    /// <body>
+    ///     <div id="test">
+    ///         <a>1</a>
+    ///     </div>
+    /// </body>
+    /// "#);
+    /// let selector = Selector::parse("#test").unwrap();
+    /// let result = u8::from_selector_and_inner_text("a", html.select(&selector).next().unwrap()).unwrap();
+    /// assert_eq!(1u8, result);
+    /// ```
     fn from_selector_and_inner_text(selector_str: &str, elem_ref: ElementRef) -> Result<Self, Error> {
         let selector = Selector::parse(selector_str).unwrap();
         let first_elem = elem_ref.select(&selector).next().ok_or(
@@ -48,6 +63,28 @@ pub trait FromHtml: Sized {
         Ok(Self::from_html(&first_elem.inner_html())?)
     }
 
+    /// # Examples
+    ///
+    /// ```
+    /// use unhtml::*;
+    /// let html = Html::parse_fragment(r#"
+    ///     <!DOCTYPE html>
+    /// <html lang="en">
+    /// <head>
+    ///     <meta charset="UTF-8">
+    ///     <title>Title</title>
+    /// </head>
+    /// <body>
+    ///     <div id="test">
+    ///         <a>1</a>
+    ///     </div>
+    /// </body>
+    /// </html>
+    /// "#);
+    /// let selector = Selector::parse("#test").unwrap();
+    /// let result = String::from_selector_and_html("a", html.select(&selector).next().unwrap()).unwrap();
+    /// assert_eq!("<a>1</a>".to_string(), result);
+    /// ```
     fn from_selector_and_html(selector_str: &str, elem_ref: ElementRef) -> Result<Self, Error> {
         let selector = Selector::parse(selector_str).unwrap();
         let first_elem = elem_ref.select(&selector).next().ok_or(
@@ -56,20 +93,93 @@ pub trait FromHtml: Sized {
         Ok(Self::from_html(&first_elem.html())?)
     }
 
+    /// # Examples
+    ///
+    /// ```
+    /// use unhtml::*;
+    /// let html = Html::parse_fragment(r#"
+    ///     <!DOCTYPE html>
+    /// <html lang="en">
+    /// <head>
+    ///     <meta charset="UTF-8">
+    ///     <title>Title</title>
+    /// </head>
+    /// <body>
+    ///     <div id="test">
+    ///         <a href="1"></a>
+    ///     </div>
+    /// </body>
+    /// </html>
+    /// "#);
+    /// let selector = Selector::parse("#test > a").unwrap();
+    /// let result = u8::from_attr("href", html.select(&selector).next().unwrap()).unwrap();
+    /// assert_eq!(1u8, result);
+    /// ```
     fn from_attr(attr: &str, elem_ref: ElementRef) -> Result<Self, Error> {
         Ok(Self::from_html(elem_ref.value().attr(attr).ok_or(
             DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string() }
         )?)?)
     }
 
+    /// # Examples
+    ///
+    /// ```
+    /// use unhtml::*;
+    /// let html = Html::parse_fragment(r#"
+    ///     <!DOCTYPE html>
+    /// <html lang="en">
+    /// <head>
+    ///     <meta charset="UTF-8">
+    ///     <title>Title</title>
+    /// </head>
+    /// <body>
+    ///     <div id="test">
+    ///         <a>1</a>
+    ///     </div>
+    /// </body>
+    /// </html>
+    /// "#);
+    /// let selector = Selector::parse("#test > a").unwrap();
+    /// let result = u8::from_inner_text(html.select(&selector).next().unwrap()).unwrap();
+    /// assert_eq!(1u8, result);
+    /// ```
     fn from_inner_text(elem_ref: ElementRef) -> Result<Self, Error> {
         Ok(Self::from_html(&elem_ref.inner_html())?)
     }
 
+    /// # Examples
+    ///
+    /// ```
+    /// use unhtml::*;
+    /// let html = Html::parse_fragment(r#"
+    /// <!DOCTYPE html>
+    /// <html lang="en">
+    /// <head>
+    ///     <meta charset="UTF-8">
+    ///     <title>Title</title>
+    /// </head>
+    /// <body>
+    ///     <div id="test">
+    ///         <a>1</a>
+    ///     </div>
+    /// </body>
+    /// </html>
+    /// "#);
+    /// let selector = Selector::parse("#test > a").unwrap();
+    /// let result = String::from_html_ref(html.select(&selector).next().unwrap()).unwrap();
+    /// assert_eq!("<a>1</a>".to_string(), result);
+    /// ```
     fn from_html_ref(elem_ref: ElementRef) -> Result<Self, Error> {
         Ok(Self::from_html(&elem_ref.html())?)
     }
 
+    /// implemented by default for all types that implemented `FromStr<Err=E> where E: std::error::Error`
+    /// # Examples
+    /// ```
+    /// use unhtml::*;
+    /// let result = u8::from_html("1").unwrap();
+    /// assert_eq!(1u8, result);
+    /// ```
     fn from_html(html: &str) -> Result<Self, Error>;
 }
 
