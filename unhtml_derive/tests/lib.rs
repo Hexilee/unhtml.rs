@@ -9,7 +9,7 @@ mod test;
 // default test case
 #[derive(FromHtml)]
 struct DefaultUser {
-    // invoke String::from
+    // invoke String::from_html
     #[html(selector = "#non-exist", default = "Hexilee")]
     name: String,
 
@@ -17,7 +17,6 @@ struct DefaultUser {
     #[html(default = 20)]
     age: u8,
 
-    // invoke i64::from_str
     #[html(default = "-1000")]
     assets: i64,
 
