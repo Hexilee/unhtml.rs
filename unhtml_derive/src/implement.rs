@@ -1,6 +1,6 @@
 use syn::{Lit, Attribute};
 use proc_macro2::TokenStream;
-use scraper::Selector;
+use unhtml::scraper::Selector;
 
 const TYPE_VEC: &str = "Vec";
 const HTML_IDENT: &str = "html";

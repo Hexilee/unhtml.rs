@@ -693,7 +693,6 @@
 extern crate proc_macro;
 extern crate proc_macro2;
 extern crate syn;
-extern crate scraper;
 #[macro_use]
 extern crate synstructure;
 #[macro_use]

@@ -15,12 +15,11 @@ documentation = "https://docs.rs/unhtml_derive"
 proc-macro = true
 
 [dependencies]
-scraper = "0.8.1"
 syn = "0.15.22"
 quote = "0.6.10"
 proc-macro2 = "0.4.24"
 synstructure = "0.10.1"
-unhtml = { path = "../unhtml" }
+unhtml = { path = "../unhtml", version = "0.1.1" }
 
 [badges]
 travis-ci = { repository = "Hexilee/unhtml.rs", branch = "master" }
