@@ -72,3 +72,6 @@ fn test_users_parse() {
     assert_eq!(21, big_brother.age);
     assert!(!big_brother.like_lemon);
 }
+
+#[cfg(test)]
+mod documentation;

@@ -334,7 +334,7 @@ struct Link {
 #[derive(FromHtml)]
 struct Website {
     #[html(default = "10")]
-    age: u8
+    age: u8,
 
     #[html(default = "<a href='https://github.com'>Github</a>")]
     link: Link,
