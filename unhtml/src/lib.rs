@@ -10,7 +10,6 @@ mod polyfill;
 pub use self::err::*;
 pub use scraper::{Selector, Html};
 pub use self::traits::*;
-pub use std::str::FromStr;
 pub use self::polyfill::*;
 pub use failure;
 pub const HTML_IDENT: &str = "html";

@@ -3,24 +3,47 @@ use scraper::Html;
 use scraper::ElementRef;
 use std::str::FromStr;
 use failure::Error;
-use super::err::ParseError;
+use super::err::DeserializeError;
 use super::polyfill::*;
 
+/// Deserialize from html
 pub trait FromHtml: Sized {
+    /// # Examples
+    ///
+    /// ```
+    /// use unhtml::*;
+    /// let html = Html::parse_fragment(r#"
+    ///     <!DOCTYPE html>
+    /// <html lang="en">
+    /// <head>
+    ///     <meta charset="UTF-8">
+    ///     <title>Title</title>
+    /// </head>
+    /// <body>
+    ///     <div id="test">
+    ///         <a href="1"></a>
+    ///     </div>
+    /// </body>
+    /// </html>
+    ///     "#);
+    /// let selector = Selector::parse("#test").unwrap();
+    /// let result = u8::from_selector_and_attr("a", "href", html.select(&selector).next().unwrap()).unwrap();
+    /// assert_eq!(1u8, result);
+    /// ```
     fn from_selector_and_attr(selector_str: &str, attr: &str, elem_ref: ElementRef) -> Result<Self, Error> {
         let selector = Selector::parse(selector_str).unwrap();
         let first_elem = elem_ref.select(&selector).next().ok_or(
-            ParseError::SelectOrAttrEmptyErr { attr: "selector".to_string(), value: selector_str.to_string() }
+            DeserializeError::SourceNotFound { attr: "selector".to_string(), value: selector_str.to_string() }
         )?;
         Ok(Self::from_html(first_elem.value().attr(attr).ok_or(
-            ParseError::SelectOrAttrEmptyErr { attr: "attr".to_string(), value: attr.to_string() }
+            DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string() }
         )?)?)
     }
 
     fn from_selector_and_inner_text(selector_str: &str, elem_ref: ElementRef) -> Result<Self, Error> {
         let selector = Selector::parse(selector_str).unwrap();
         let first_elem = elem_ref.select(&selector).next().ok_or(
-            ParseError::SelectOrAttrEmptyErr { attr: "selector".to_string(), value: selector_str.to_string() }
+            DeserializeError::SourceNotFound { attr: "selector".to_string(), value: selector_str.to_string() }
         )?;
         Ok(Self::from_html(&first_elem.inner_html())?)
     }
@@ -28,14 +51,14 @@ pub trait FromHtml: Sized {
     fn from_selector_and_html(selector_str: &str, elem_ref: ElementRef) -> Result<Self, Error> {
         let selector = Selector::parse(selector_str).unwrap();
         let first_elem = elem_ref.select(&selector).next().ok_or(
-            ParseError::SelectOrAttrEmptyErr { attr: "selector".to_string(), value: selector_str.to_string() }
+            DeserializeError::SourceNotFound { attr: "selector".to_string(), value: selector_str.to_string() }
         )?;
         Ok(Self::from_html(&first_elem.html())?)
     }
 
     fn from_attr(attr: &str, elem_ref: ElementRef) -> Result<Self, Error> {
         Ok(Self::from_html(elem_ref.value().attr(attr).ok_or(
-            ParseError::SelectOrAttrEmptyErr { attr: "attr".to_string(), value: attr.to_string() }
+            DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string() }
         )?)?)
     }
 
@@ -56,7 +79,7 @@ pub trait VecFromHtml {
         Self::vec_from(selector_str, root_element_ref, |element_ref| {
             Ok(Self::Elem::from_html(
                 element_ref.value().attr(attr).ok_or(
-                    ParseError::SelectOrAttrEmptyErr { attr: "attr".to_string(), value: attr.to_string() }
+                    DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string() }
                 )?
             )?)
         })

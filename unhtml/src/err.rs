@@ -1,7 +1,7 @@
 #[derive(Fail, Debug)]
-pub enum ParseError {
+pub enum DeserializeError {
     #[fail(display = "{}({}) get nothing", attr, value)]
-    SelectOrAttrEmptyErr {
+    SourceNotFound {
         attr: String,
         value: String
     }
