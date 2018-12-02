@@ -1,8 +1,7 @@
 #[macro_use]
 extern crate unhtml_derive;
 
-extern crate unhtml;
-use unhtml::*;
+use unhtml::{self, };
 
 #[cfg(test)]
 mod test;

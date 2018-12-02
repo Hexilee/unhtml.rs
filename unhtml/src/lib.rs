@@ -67,7 +67,7 @@ mod err;
 mod traits;
 mod util;
 pub use self::err::*;
-pub use scraper::{Selector, Html, ElementRef};
 pub use self::traits::*;
+pub use scraper;
 pub use failure;
 
