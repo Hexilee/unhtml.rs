@@ -58,7 +58,6 @@
 //! assert_eq!(2u8, results[1]);
 //! assert_eq!(3u8, results[2]);
 
-#![feature(custom_attribute)]
 #[macro_use]
 extern crate failure_derive;
 

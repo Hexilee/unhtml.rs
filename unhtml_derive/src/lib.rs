@@ -1,4 +1,3 @@
-#![feature(extern_crate_item_prelude)]
 extern crate proc_macro;
 extern crate proc_macro2;
 extern crate syn;
