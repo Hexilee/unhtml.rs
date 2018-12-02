@@ -8,9 +8,6 @@ extern crate synstructure;
 #[macro_use]
 extern crate quote;
 extern crate unhtml;
-
-#[cfg(test)]
-mod test;
 mod implement;
 
 decl_derive!([FromHtml, attributes(html)] => unhtml_derive);

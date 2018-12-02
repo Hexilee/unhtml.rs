@@ -2,11 +2,6 @@ use super::{DefaultUser, SingleUser, TestUsers};
 use unhtml::*;
 
 #[test]
-fn it_works() {
-    assert_eq!(2 + 2, 4);
-}
-
-#[test]
 fn test_default_value() {
     let user: DefaultUser = DefaultUser::from_html("").unwrap();
     assert_eq!("Hexilee".to_string(), user.name);
