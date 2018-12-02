@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate unhtml_derive;
 
-use unhtml::{self, };
+use unhtml::{self, VecFromHtml};
 
 #[cfg(test)]
 mod test;

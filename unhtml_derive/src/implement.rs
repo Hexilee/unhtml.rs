@@ -16,11 +16,11 @@ pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
     let root_element_ref_ident = quote!(root_element_ref);
     let top_macro_attr = get_macro_attr(&ast.attrs);
     let doc_ident = quote!(doc);
-    let doc_define_block = quote!(let #doc_ident = Html::parse_fragment(#data_ident););
+    let doc_define_block = quote!(let #doc_ident = unhtml::scraper::Html::parse_fragment(#data_ident););
     let root_element_ref_define_block = match top_macro_attr.selector {
         Some(selector) => {
             check_selector(&selector);
-            quote!(let #root_element_ref_ident = #doc_ident.select(&Selector::parse(#selector).unwrap()).next().ok_or(
+            quote!(let #root_element_ref_ident = #doc_ident.select(&unhtml::scraper::Selector::parse(#selector).unwrap()).next().ok_or(
                 unhtml::DeserializeError::SourceNotFound { attr: "selector".to_string(), value: #selector.to_string() }
             )?;)
         }
@@ -28,7 +28,7 @@ pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
             let mut optional_root_element_ref = None;
             for child in #doc_ident.root_element().children() {
                 if child.value().is_element() {
-                    optional_root_element_ref = Some(unhtml::ElementRef::wrap(child).unwrap());
+                    optional_root_element_ref = Some(unhtml::scraper::ElementRef::wrap(child).unwrap());
                 }
             };
             let #root_element_ref_ident = optional_root_element_ref.ok_or (
@@ -42,7 +42,7 @@ pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
     };
     quote!(
         impl unhtml::FromHtml for #struct_name {
-            fn from_html(#data_ident: &str) -> Result<Self, failure::Error> {
+            fn from_html(#data_ident: &str) -> Result<Self, unhtml::failure::Error> {
                 #doc_define_block
                 #root_element_ref_define_block
                 Ok(#struct_name{#(#result_recurse),*})

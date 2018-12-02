@@ -1,5 +1,5 @@
 use super::{DefaultUser, SingleUser, TestUsers, Link};
-use unhtml::{self, FromHtml, VecFromHtml};
+use unhtml::{self, FromHtml};
 
 #[test]
 fn test_default_value() {
