@@ -1,4 +1,4 @@
-Deserializing from HTML
+HTML deserializer for rust, base on [scraper](https://github.com/programble/scraper)
 
 [![Build status](https://img.shields.io/travis/Hexilee/unhtml.rs/master.svg)](https://travis-ci.org/Hexilee/unhtml.rs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Hexilee/unhtml.rs/blob/master/LICENSE)
@@ -694,3 +694,5 @@ let link = Link::from_html(r#"<a href="https://github.com">Github</a>"#).unwrap(
 assert_eq!("https://github.com", &link.href);
 assert_eq!("Github", &link.value);
 ```
+
+
