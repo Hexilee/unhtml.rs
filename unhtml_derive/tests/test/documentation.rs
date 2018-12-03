@@ -5,13 +5,13 @@ mod basic_usage {
     #[derive(FromHtml)]
     #[html(selector = "#test")]
     struct SingleUser {
-        #[html(selector = "p:nth-child(1)", attr = "value")]
+        #[html(selector = "p:nth-child(1)", attr = "inner")]
         name: String,
 
-        #[html(selector = "p:nth-child(2)", attr = "value")]
+        #[html(selector = "p:nth-child(2)", attr = "inner")]
         age: u8,
 
-        #[html(selector = "p:nth-child(3)", attr = "value")]
+        #[html(selector = "p:nth-child(3)", attr = "inner")]
         like_lemon: bool,
     }
 
@@ -59,7 +59,7 @@ mod select_first {
         #[html(attr = "href")]
         href: String,
 
-        #[html(attr = "value")]
+        #[html(attr = "inner")]
         value: String,
     }
 
@@ -83,7 +83,7 @@ mod selector_default_behavior {
         #[html(attr = "href")]
         href: String,
 
-        #[html(attr = "value")]
+        #[html(attr = "inner")]
         value: String,
     }
 
@@ -104,7 +104,7 @@ mod attr_default_behavior {
         #[html(attr = "href")]
         href: String,
 
-        #[html(attr = "value")]
+        #[html(attr = "inner")]
         value: String,
 
         source: String,
@@ -128,7 +128,7 @@ mod string_default_value {
         #[html(attr = "href")]
         href: String,
 
-        #[html(attr = "value")]
+        #[html(attr = "inner")]
         value: String,
     }
 
@@ -157,13 +157,13 @@ mod get_vec_straightly {
 
     #[derive(FromHtml)]
     struct TestUser {
-        #[html(selector = "p:nth-child(1)", attr = "value")]
+        #[html(selector = "p:nth-child(1)", attr = "inner")]
         name: String,
 
-        #[html(selector = "p:nth-child(2)", attr = "value")]
+        #[html(selector = "p:nth-child(2)", attr = "inner")]
         age: u8,
 
-        #[html(selector = "p:nth-child(3)", attr = "value")]
+        #[html(selector = "p:nth-child(3)", attr = "inner")]
         like_lemon: bool,
     }
 

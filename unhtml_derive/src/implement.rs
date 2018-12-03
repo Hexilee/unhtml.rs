@@ -7,7 +7,7 @@ const HTML_IDENT: &str = "html";
 const SELECTOR_IDENT: &str = "selector";
 const ATTR_IDENT: &str = "attr";
 const DEFAULT_IDENT: &str = "default";
-const ATTR_INNER_TEXT: &str = "value";
+const ATTR_INNER_TEXT: &str = "inner";
 
 pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
     let ast = structure.ast();
