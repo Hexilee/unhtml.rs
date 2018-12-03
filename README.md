@@ -1,4 +1,4 @@
-HTML deserializer for rust, base on [scraper](https://github.com/programble/scraper)
+HTML deserializer for rust
 
 [![Build status](https://img.shields.io/travis/Hexilee/unhtml.rs/master.svg)](https://travis-ci.org/Hexilee/unhtml.rs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Hexilee/unhtml.rs/blob/master/LICENSE)
