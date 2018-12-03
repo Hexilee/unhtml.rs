@@ -54,13 +54,13 @@ use unhtml::{self, FromHtml};
 #[derive(FromHtml)]
 #[html(selector = "#test")]
 struct SingleUser {
-    #[html(selector = "p:nth-child(1)", attr = "value")]
+    #[html(selector = "p:nth-child(1)", attr = "inner")]
     name: String,
 
-    #[html(selector = "p:nth-child(2)", attr = "value")]
+    #[html(selector = "p:nth-child(2)", attr = "inner")]
     age: u8,
 
-    #[html(selector = "p:nth-child(3)", attr = "value")]
+    #[html(selector = "p:nth-child(3)", attr = "inner")]
     like_lemon: bool,
 }
 
@@ -151,7 +151,7 @@ use unhtml::*;
 
 #[derive(FromHtml)]
 struct SingleUser {
-    #[html(selector = "<>", attr = "value")]
+    #[html(selector = "<>", attr = "inner")]
     name: String,
 }
 ```
@@ -171,7 +171,7 @@ struct Link {
     #[html(attr = "href")]
     href: String,
 
-    #[html(attr = "value")]
+    #[html(attr = "inner")]
     value: String,
 }
 
@@ -200,7 +200,7 @@ struct Link {
     #[html(attr = "href")]
     href: String,
 
-    #[html(attr = "value")]
+    #[html(attr = "inner")]
     value: String,
 }
 
@@ -223,7 +223,7 @@ assert_eq!("Github", &link.value);
 
 ##### specification
 
-- `value` refer to `innerHtml`
+- `inner` refer to `innerHtml`
 - any other `attr` refer to `html element attribute`
 
 ```rust
@@ -237,7 +237,7 @@ struct Link {
     #[html(attr = "href")]
     href: String,
 
-    #[html(attr = "value")]
+    #[html(attr = "inner")]
     value: String,
 }
 
@@ -261,7 +261,7 @@ struct Link {
     #[html(attr = "href")]
     href: String,
 
-    #[html(attr = "value")]
+    #[html(attr = "inner")]
     value: String,
     
     source: String,
@@ -327,7 +327,7 @@ struct Link {
     #[html(attr = "href")]
     href: String,
 
-    #[html(attr = "value")]
+    #[html(attr = "inner")]
     value: String,
 }
 
@@ -364,7 +364,7 @@ struct Link {
     #[html(attr = "href")]
     href: String,
 
-    #[html(attr = "value")]
+    #[html(attr = "inner")]
     value: String,
 }
 
@@ -431,13 +431,13 @@ use unhtml::{self, FromHtml, VecFromHtml};
 
 #[derive(FromHtml)]
 struct TestUser {
-    #[html(selector = "p:nth-child(1)", attr = "value")]
+    #[html(selector = "p:nth-child(1)", attr = "inner")]
     name: String,
 
-    #[html(selector = "p:nth-child(2)", attr = "value")]
+    #[html(selector = "p:nth-child(2)", attr = "inner")]
     age: u8,
 
-    #[html(selector = "p:nth-child(3)", attr = "value")]
+    #[html(selector = "p:nth-child(3)", attr = "inner")]
     like_lemon: bool,
 }
 
@@ -489,13 +489,13 @@ use unhtml::{self, VecFromHtml};
 
 #[derive(FromHtml)]
 struct TestUser {
-    #[html(selector = "p:nth-child(1)", attr = "value")]
+    #[html(selector = "p:nth-child(1)", attr = "inner")]
     name: String,
 
-    #[html(selector = "p:nth-child(2)", attr = "value")]
+    #[html(selector = "p:nth-child(2)", attr = "inner")]
     age: u8,
 
-    #[html(selector = "p:nth-child(3)", attr = "value")]
+    #[html(selector = "p:nth-child(3)", attr = "inner")]
     like_lemon: bool,
 }
 
@@ -680,7 +680,7 @@ struct Link {
     #[html(attr = "href")]
     href: String,
 
-    #[html(attr = "value")]
+    #[html(attr = "inner")]
     value: String,
 }
 
