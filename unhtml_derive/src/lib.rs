@@ -129,7 +129,7 @@
 //!
 //! ##### specification
 //!
-//! selector must be a invalid css-selector, invalid selector will cause a compile-time panic
+//! selector must be a valid css-selector, invalid selector will cause a compile-time panic
 //!
 //! ```rust,ignore
 //! // panic
