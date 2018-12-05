@@ -373,7 +373,7 @@ let link = Link::from_html(r#"<a>Github</a>"#).unwrap();
 
 ### Field Type
 
-##### any sized path type, without generics
+##### any type implemented FromHtml, without generics
 
 ```rust,should_panic
 // panic

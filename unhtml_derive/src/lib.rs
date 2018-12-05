@@ -374,7 +374,7 @@
 //!
 //! ### Field Type
 //!
-//! ##### any sized path type, without generics
+//! ##### any type implemented FromHtml, without generics
 //!
 //! ```rust,ignore
 //! // panic
