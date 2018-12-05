@@ -34,7 +34,7 @@
 //!         * [specification](#specification-3)
 //!         * [default behavior](#default-behavior-2)
 //! * [Field Type](#field-type)
-//!     * [any sized path type, without generics](#any-sized-path-type-without-generics)
+//!     * [any type implemented FromHtml, without generics](#any-type-implemented-fromhtml-without-generics)
 //!     * [Vec](#vec)
 //! * [Source HTML](#source-html)
 //!     * [with top selector](#with-top-selector)
