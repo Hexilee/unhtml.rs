@@ -14,7 +14,7 @@
 //!     where E: std::error::Error + Send + Sync + 'static,
 //!           T: FromStr<Err=E> {
 //!     fn from_html(html: &str) -> Result<Self, Error> {
-//!         Ok(T::from_str(html)?)
+//!         Ok(T::from_str(html.trim())?)
 //!     }
 //! }
 //! ```
