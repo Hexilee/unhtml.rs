@@ -127,3 +127,9 @@ fn test_from_html_ref() {
     let result = String::from_html_ref(html.select(&selector).next().unwrap()).unwrap();
     assert_eq!("<a>1</a>".to_string(), result);
 }
+
+#[test]
+fn test_trim_whitespace() {
+    let id = usize::from_html(" 1 ").unwrap();
+    assert_eq!(1usize, id);
+}
