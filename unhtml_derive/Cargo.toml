@@ -1,6 +1,6 @@
 [package]
 name = "unhtml_derive"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Hexilee <hexileee@gmail.com>"]
 edition = "2018"
 license = "MIT"
@@ -19,7 +19,7 @@ syn = "0.15.22"
 quote = "0.6.10"
 proc-macro2 = "0.4.24"
 synstructure = "0.10.1"
-unhtml = { path = "../unhtml", version = "0.1.2" }
+unhtml = { path = "../unhtml", version = "0.2.0" }
 
 [badges]
 travis-ci = { repository = "Hexilee/unhtml.rs", branch = "master" }
