@@ -1,6 +1,6 @@
 [package]
 name = "unhtml"
-version = "0.3.1"
+version = "0.4.0"
 authors = ["Hexilee <hexileee@gmail.com>"]
 edition = "2018"
 license = "MIT"
