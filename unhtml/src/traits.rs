@@ -91,7 +91,7 @@ pub trait FromHtml: Sized {
         let first_elem = elem_ref.select(&selector).next().ok_or(
             DeserializeError::SourceNotFound { attr: "selector".to_string(), value: selector_str.to_string() }
         )?;
-        Ok(Self::from_html(&first_elem.html())?)
+        Self::from_html_ref(first_elem)
     }
 
     /// # Examples
@@ -147,7 +147,7 @@ pub trait FromHtml: Sized {
     /// assert_eq!(1u8, result);
     /// ```
     fn from_inner_text(elem_ref: ElementRef) -> Result<Self, Error> {
-        Ok(Self::from_html(&elem_ref.inner_html())?)
+        Self::from_html(&elem_ref.inner_html())
     }
 
     /// # Examples
