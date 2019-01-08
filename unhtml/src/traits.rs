@@ -173,9 +173,7 @@ pub trait FromHtml: Sized {
     /// let result = String::from_html_ref(html.select(&selector).next().unwrap()).unwrap();
     /// assert_eq!("<a>1</a>".to_string(), result);
     /// ```
-    fn from_html_ref(elem_ref: ElementRef) -> Result<Self, Error> {
-        Ok(Self::from_html(&elem_ref.html())?)
-    }
+    fn from_html_ref(elem_ref: ElementRef) -> Result<Self, Error>;
 
     /// implemented by default for all types that implemented `FromStr<Err=E> where E: std::error::Error`
     /// # Examples
@@ -184,7 +182,9 @@ pub trait FromHtml: Sized {
     /// let result = u8::from_html("1").unwrap();
     /// assert_eq!(1u8, result);
     /// ```
-    fn from_html(html: &str) -> Result<Self, Error>;
+    fn from_html(html: &str) -> Result<Self, Error> {
+        Self::from_html_ref(Html::parse_fragment(html).root_element())
+    }
 }
 
 /// Deserialize `Vec<T>` from html where `T`implemented `FromHtml`
@@ -319,6 +319,10 @@ pub trait VecFromHtml {
 impl<E, T> FromHtml for T
     where E: std::error::Error + Send + Sync + 'static,
           T: FromStr<Err=E> {
+    fn from_html_ref(elem_ref: ElementRef) -> Result<Self, Error> {
+        Self::from_html(&elem_ref.html())
+    }
+
     fn from_html(html: &str) -> Result<Self, Error> {
         Ok(T::from_str(html.trim())?)
     }
