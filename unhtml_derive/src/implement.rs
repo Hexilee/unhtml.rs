@@ -15,24 +15,22 @@ pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
     let data_ident = quote!(data);
     let root_element_ref_ident = quote!(root_element_ref);
     let top_macro_attr = get_macro_attr(&ast.attrs);
-    let doc_ident = quote!(doc);
-    let doc_define_block = quote!(let #doc_ident = unhtml::scraper::Html::parse_fragment(#data_ident););
     let root_element_ref_define_block = match top_macro_attr.selector {
         Some(selector) => {
             check_selector(&selector);
-            quote!(let #root_element_ref_ident = #doc_ident.select(&unhtml::scraper::Selector::parse(#selector).unwrap()).next().ok_or(
+            quote!(let #root_element_ref_ident = #data_ident.select(&unhtml::scraper::Selector::parse(#selector).unwrap()).next().ok_or(
                 unhtml::DeserializeError::SourceNotFound { attr: "selector".to_string(), value: #selector.to_string() }
             )?;)
         }
         None => quote!(
             let mut optional_root_element_ref = None;
-            for child in #doc_ident.root_element().children() {
+            for child in #data_ident.children() {
                 if child.value().is_element() {
                     optional_root_element_ref = Some(unhtml::scraper::ElementRef::wrap(child).unwrap());
                 }
             };
             let #root_element_ref_ident = optional_root_element_ref.ok_or (
-                unhtml::DeserializeError::SourceEmpty{source: #doc_ident.root_element().html().to_string()}
+                unhtml::DeserializeError::SourceEmpty{source: #data_ident.html().to_string()}
             )?;
         )
     };
@@ -42,8 +40,7 @@ pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
     };
     quote!(
         impl unhtml::FromHtml for #struct_name {
-            fn from_html(#data_ident: &str) -> Result<Self, unhtml::failure::Error> {
-                #doc_define_block
+            fn from_html_ref(#data_ident: unhtml::scraper::ElementRef) -> Result<Self, unhtml::failure::Error> {
                 #root_element_ref_define_block
                 Ok(#struct_name{#(#result_recurse),*})
             }
