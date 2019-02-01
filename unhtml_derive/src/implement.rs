@@ -23,12 +23,6 @@ pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
             )?;)
         }
         None => quote!(
-//            let mut optional_root_element_ref = None;
-//            for child in #data_ident.children() {
-//                if child.value().is_element() {
-//                    optional_root_element_ref = Some(unhtml::scraper::ElementRef::wrap(child).unwrap());
-//                }
-//            };
             let #root_element_ref_ident = data;
         )
     };
