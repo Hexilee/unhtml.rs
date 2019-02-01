@@ -196,6 +196,7 @@ extern crate unhtml;
 use unhtml::{self, FromHtml};
 
 #[derive(FromHtml)]
+#[html(selector = "a")]
 struct Link {
     #[html(attr = "href")]
     href: String,
@@ -233,6 +234,7 @@ extern crate unhtml;
 use unhtml::{self, FromHtml};
 
 #[derive(FromHtml)]
+#[html(selector = "a")]
 struct Link {
     #[html(attr = "href")]
     href: String,
@@ -257,6 +259,7 @@ extern crate unhtml;
 use unhtml::{self, FromHtml};
 
 #[derive(FromHtml)]
+#[html(selector = "a")]
 struct Link {
     #[html(attr = "href")]
     href: String,
@@ -323,6 +326,7 @@ extern crate unhtml;
 use unhtml::{self, FromHtml};
 
 #[derive(FromHtml)]
+#[html(selector = "a")]
 struct Link {
     #[html(attr = "href")]
     href: String,
@@ -359,7 +363,8 @@ extern crate unhtml;
 use unhtml::{self, FromHtml};
 
 #[derive(FromHtml)]
-struct Link {
+
+#[html(selector = "a")]struct Link {
     // no default
     #[html(attr = "href")]
     href: String,
@@ -383,7 +388,8 @@ extern crate unhtml;
 use unhtml::{self, FromHtml};
 
 #[derive(FromHtml)]
-struct Link {
+
+#[html(selector = "a")]struct Link {
     // no default
     #[html(attr = "href")]
     href: &str,
@@ -676,6 +682,7 @@ extern crate unhtml;
 use unhtml::{self, FromHtml};
 
 #[derive(FromHtml)]
+#[html(selector = "a")]
 struct Link {
     #[html(attr = "href")]
     href: String,

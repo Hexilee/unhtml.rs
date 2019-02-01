@@ -19,7 +19,7 @@ pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
         Some(selector) => {
             check_selector(&selector);
             quote!(let #root_element_ref_ident = #data_ident.select(&unhtml::scraper::Selector::parse(#selector).unwrap()).next().ok_or(
-                unhtml::DeserializeError::SourceNotFound { attr: "selector".to_string(), value: #selector.to_string() }
+                unhtml::DeserializeError::SourceNotFound { attr: "selector".to_string(), value: #selector.to_string(), html_fragment: #data_ident.html()}
             )?;)
         }
         None => quote!(
