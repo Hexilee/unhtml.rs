@@ -32,10 +32,10 @@ pub trait FromHtml: Sized {
     fn from_selector_and_attr(selector_str: &str, attr: &str, elem_ref: ElementRef) -> Result<Self, Error> {
         let selector = Selector::parse(selector_str).unwrap();
         let first_elem = elem_ref.select(&selector).next().ok_or(
-            DeserializeError::SourceNotFound { attr: "selector".to_string(), value: selector_str.to_string() }
+            DeserializeError::SourceNotFound { attr: "selector".to_string(), value: selector_str.to_string(), html_fragment: elem_ref.html() }
         )?;
         Ok(Self::from_html(first_elem.value().attr(attr).ok_or(
-            DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string() }
+            DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string(), html_fragment: first_elem.html() }
         )?)?)
     }
 
@@ -58,7 +58,7 @@ pub trait FromHtml: Sized {
     fn from_selector_and_inner_text(selector_str: &str, elem_ref: ElementRef) -> Result<Self, Error> {
         let selector = Selector::parse(selector_str).unwrap();
         let first_elem = elem_ref.select(&selector).next().ok_or(
-            DeserializeError::SourceNotFound { attr: "selector".to_string(), value: selector_str.to_string() }
+            DeserializeError::SourceNotFound { attr: "selector".to_string(), value: selector_str.to_string(), html_fragment: elem_ref.html() }
         )?;
         Ok(Self::from_html(&first_elem.inner_html())?)
     }
@@ -89,7 +89,7 @@ pub trait FromHtml: Sized {
     fn from_selector_and_html(selector_str: &str, elem_ref: ElementRef) -> Result<Self, Error> {
         let selector = Selector::parse(selector_str).unwrap();
         let first_elem = elem_ref.select(&selector).next().ok_or(
-            DeserializeError::SourceNotFound { attr: "selector".to_string(), value: selector_str.to_string() }
+            DeserializeError::SourceNotFound { attr: "selector".to_string(), value: selector_str.to_string(), html_fragment: elem_ref.html() }
         )?;
         Self::from_html_ref(first_elem)
     }
@@ -119,7 +119,7 @@ pub trait FromHtml: Sized {
     /// ```
     fn from_attr(attr: &str, elem_ref: ElementRef) -> Result<Self, Error> {
         Ok(Self::from_html(elem_ref.value().attr(attr).ok_or(
-            DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string() }
+            DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string(), html_fragment: elem_ref.html() }
         )?)?)
     }
 
@@ -220,7 +220,7 @@ pub trait VecFromHtml {
         util::vec_from(selector_str, root_element_ref, |element_ref| {
             Ok(Self::Elem::from_html(
                 element_ref.value().attr(attr).ok_or(
-                    DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string() }
+                    DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string(), html_fragment: element_ref.html() }
                 )?
             )?)
         })
