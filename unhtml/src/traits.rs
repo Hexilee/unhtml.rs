@@ -284,7 +284,7 @@ pub trait VecFromHtml {
     /// ```
     fn from_html_ref(selector_str: &str, root_element_ref: ElementRef) -> Result<Vec<Self::Elem>, Error> {
         util::vec_from(selector_str, root_element_ref, |element_ref| {
-            Ok(Self::Elem::from_html(&element_ref.html())?)
+            Ok(Self::Elem::from_html_ref(element_ref)?)
         })
     }
 
