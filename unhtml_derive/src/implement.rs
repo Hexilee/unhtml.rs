@@ -23,15 +23,13 @@ pub fn impl_un_html(structure: &synstructure::Structure) -> TokenStream {
             )?;)
         }
         None => quote!(
-            let mut optional_root_element_ref = None;
-            for child in #data_ident.children() {
-                if child.value().is_element() {
-                    optional_root_element_ref = Some(unhtml::scraper::ElementRef::wrap(child).unwrap());
-                }
-            };
-            let #root_element_ref_ident = optional_root_element_ref.ok_or (
-                unhtml::DeserializeError::SourceEmpty{source: #data_ident.html().to_string()}
-            )?;
+//            let mut optional_root_element_ref = None;
+//            for child in #data_ident.children() {
+//                if child.value().is_element() {
+//                    optional_root_element_ref = Some(unhtml::scraper::ElementRef::wrap(child).unwrap());
+//                }
+//            };
+            let #root_element_ref_ident = data;
         )
     };
     let result_recurse = match ast.data {
@@ -199,6 +197,6 @@ fn get_lit_str_value(lit: &Lit) -> String {
     if let &Lit::Str(ref str_lit) = lit {
         str_lit.value()
     } else {
-        panic!("selector must be string")
+        panic!("strlit must be string")
     }
 }

@@ -197,6 +197,7 @@
 //! use unhtml::{self, FromHtml};
 //!
 //! #[derive(FromHtml)]
+//! #[html(selector = "a")]
 //! struct Link {
 //!     #[html(attr = "href")]
 //!     href: String,
@@ -234,6 +235,7 @@
 //! use unhtml::{self, FromHtml};
 //!
 //! #[derive(FromHtml)]
+//! #[html(selector = "a")]
 //! struct Link {
 //!     #[html(attr = "href")]
 //!     href: String,
@@ -258,6 +260,7 @@
 //! use unhtml::{self, FromHtml};
 //!
 //! #[derive(FromHtml)]
+//! #[html(selector = "a")]
 //! struct Link {
 //!     #[html(attr = "href")]
 //!     href: String,
@@ -324,6 +327,7 @@
 //! use unhtml::{self, FromHtml};
 //!
 //! #[derive(FromHtml)]
+//! #[html(selector = "a")]
 //! struct Link {
 //!     #[html(attr = "href")]
 //!     href: String,
@@ -360,6 +364,7 @@
 //! use unhtml::{self, FromHtml};
 //!
 //! #[derive(FromHtml)]
+//! #[html(selector = "a")]
 //! struct Link {
 //!     // no default
 //!     #[html(attr = "href")]
@@ -384,6 +389,7 @@
 //! use unhtml::{self, FromHtml};
 //!
 //! #[derive(FromHtml)]
+//! #[html(selector = "a")]
 //! struct Link {
 //!     // no default
 //!     #[html(attr = "href")]
@@ -677,6 +683,7 @@
 //! use unhtml::{self, FromHtml};
 //!
 //! #[derive(FromHtml)]
+//! #[html(selector = "a")]
 //! struct Link {
 //!     #[html(attr = "href")]
 //!     href: String,

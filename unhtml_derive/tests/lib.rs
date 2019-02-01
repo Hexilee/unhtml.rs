@@ -38,6 +38,7 @@ struct SingleUser {
 }
 
 #[derive(FromHtml)]
+#[html(selector = "a")]
 struct Link {
     #[html(attr = "href")]
     href: String,
