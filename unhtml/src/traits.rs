@@ -317,7 +317,7 @@ pub trait VecFromHtml {
 }
 
 impl<E, T> FromHtml for T
-    where E: std::error::Error + Send + Sync + 'static,
+    where E: failure::Fail,
           T: FromStr<Err=E> {
     fn from_html_ref(elem_ref: ElementRef) -> Result<Self, Error> {
         Self::from_html(&elem_ref.html())
