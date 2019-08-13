@@ -1,3 +1,5 @@
+#![feature(proc_macro_diagnostic)]
+
 //! ## unhtml_derive
 //!
 //! [![Build status](https://img.shields.io/travis/Hexilee/unhtml.rs/master.svg)](https://travis-ci.org/Hexilee/unhtml.rs)
@@ -698,17 +700,21 @@
 //! ```
 
 extern crate proc_macro;
-extern crate proc_macro2;
-extern crate syn;
-#[macro_use]
-extern crate synstructure;
-#[macro_use]
-extern crate quote;
-extern crate unhtml;
-mod implement;
 
-decl_derive!([FromHtml, attributes(html)] => unhtml_derive);
+mod attr_meta;
+mod derive;
+mod parse;
 
-fn unhtml_derive(input: synstructure::Structure) -> proc_macro::TokenStream {
-    proc_macro::TokenStream::from(implement::impl_un_html(&input))
+use proc_macro::TokenStream;
+use quote::quote;
+use syn::{parse_macro_input, DeriveInput, ItemTrait};
+
+#[proc_macro_derive(FromHtml, attributes(html))]
+fn unhtml_derive(input: TokenStream) -> TokenStream {
+    derive::derive(input)
+        .unwrap_or_else(|err| {
+            err.emit();
+            quote!()
+        })
+        .into()
 }

@@ -17,7 +17,8 @@ mod basic_usage {
 
     #[test]
     fn test_basic_usage() {
-        let user = SingleUser::from_html(r#"<!DOCTYPE html>
+        let user = SingleUser::from_html(
+            r#"<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -32,7 +33,9 @@ mod basic_usage {
         </div>
     </div>
 </body>
-</html>"#).unwrap();
+</html>"#,
+        )
+        .unwrap();
         assert_eq!("Hexilee", &user.name);
         assert_eq!(20, user.age);
         assert!(user.like_lemon);
@@ -65,10 +68,13 @@ mod select_first {
 
     #[test]
     fn test_select_first() {
-        let link = Link::from_html(r#"
+        let link = Link::from_html(
+            r#"
 <a href="https://github.com">Github</a>
 <a href="https://google.com">Google</a>
-"#).unwrap();
+"#,
+        )
+        .unwrap();
         assert_eq!("https://github.com", &link.href);
         assert_eq!("Github", &link.value);
     }
@@ -172,7 +178,9 @@ mod get_vec_straightly {
 
     #[test]
     fn test_get_vec_straightly() {
-        let users = Vec::<TestUser>::from_html("#test > div", r#"<!DOCTYPE html>
+        let users = Vec::<TestUser>::from_html(
+            "#test > div",
+            r#"<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -192,7 +200,9 @@ mod get_vec_straightly {
         </div>
     </div>
 </body>
-</html>"#).unwrap();
+</html>"#,
+        )
+        .unwrap();
         let hexilee = &users[0];
         let big_brother = &users[1];
         assert_eq!("Hexilee", &hexilee.name);

@@ -1,4 +1,4 @@
-use super::{DefaultUser, SingleUser, TestUsers, Link};
+use super::{DefaultUser, Link, SingleUser, TestUsers};
 use unhtml::{self, FromHtml};
 
 #[test]
@@ -12,7 +12,8 @@ fn test_default_value() {
 
 #[test]
 fn test_single_user() {
-    let user = SingleUser::from_html(r#"<!DOCTYPE html>
+    let user = SingleUser::from_html(
+        r#"<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -27,7 +28,9 @@ fn test_single_user() {
         </div>
     </div>
 </body>
-</html>"#).unwrap();
+</html>"#,
+    )
+    .unwrap();
     assert_eq!("Hexilee", &user.name);
     assert_eq!(20, user.age);
     assert!(user.like_lemon);
@@ -42,7 +45,8 @@ fn test_link() {
 
 #[test]
 fn test_users_parse() {
-    let users = TestUsers::from_html(r#"<!DOCTYPE html>
+    let users = TestUsers::from_html(
+        r#"<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -62,7 +66,9 @@ fn test_users_parse() {
         </div>
     </div>
 </body>
-</html>"#).unwrap();
+</html>"#,
+    )
+    .unwrap();
     let hexilee = &users.users[0];
     let big_brother = &users.users[1];
     assert_eq!("Hexilee", &hexilee.name);
