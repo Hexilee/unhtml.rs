@@ -1,14 +1,12 @@
+use failure_derive::Fail;
+
 #[derive(Fail, Debug)]
-pub enum DeserializeError {
-    #[fail(display = "{}({}) get nothing", attr, value)]
+pub enum HtmlError {
+    #[fail(display = "{}({}) get nothing", source_type, source_name)]
     SourceNotFound {
-        attr: String,
-        value: String,
-        html_fragment: String,
+        source_type: String,
+        source_name: String,
     },
-    #[fail(display = "source({}) is empty", source)]
-    SourceEmpty {
-        source: String,
-        html_fragment: String,
-    }
+    #[fail(display = "source is empty (selected nothing)")]
+    SourceEmpty,
 }

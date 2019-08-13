@@ -1,8 +1,29 @@
-use scraper::{ElementRef, Selector, Html};
-use std::str::FromStr;
+use super::err::HtmlError;
+use ego_tree::NodeRef;
 use failure::Error;
-use super::err::DeserializeError;
-use super::util;
+use scraper::{html, ElementRef, Html, Node, Selector};
+use std::str::FromStr;
+
+pub trait Select<'a> {
+    fn select_elements(
+        self,
+        selector: &'a Selector,
+    ) -> Box<dyn Iterator<Item = ElementRef<'a>> + 'a>;
+}
+
+impl<'a, T> Select<'a> for T
+where
+    T: Iterator<Item = ElementRef<'a>> + 'a,
+{
+    fn select_elements(
+        self,
+        selector: &'a Selector,
+    ) -> Box<dyn Iterator<Item = ElementRef<'a>> + 'a> {
+        Box::new(self.flat_map(move |elem_ref| elem_ref.select(selector)))
+    }
+}
+
+type ElemIter<'a> = &'a mut (dyn Iterator<Item = ElementRef<'a>> + 'a);
 
 /// Deserialize from html
 pub trait FromHtml: Sized {
@@ -12,150 +33,6 @@ pub trait FromHtml: Sized {
     /// use unhtml::scraper::{Html, Selector};
     /// use unhtml::FromHtml;
     /// let html = Html::parse_fragment(r#"
-    ///     <!DOCTYPE html>
-    /// <html lang="en">
-    /// <head>
-    ///     <meta charset="UTF-8">
-    ///     <title>Title</title>
-    /// </head>
-    /// <body>
-    ///     <div id="test">
-    ///         <a href="1"></a>
-    ///     </div>
-    /// </body>
-    /// </html>
-    ///     "#);
-    /// let selector = Selector::parse("#test").unwrap();
-    /// let result = u8::from_selector_and_attr("a", "href", html.select(&selector).next().unwrap()).unwrap();
-    /// assert_eq!(1u8, result);
-    /// ```
-    fn from_selector_and_attr(selector_str: &str, attr: &str, elem_ref: ElementRef) -> Result<Self, Error> {
-        let selector = Selector::parse(selector_str).unwrap();
-        let first_elem = elem_ref.select(&selector).next().ok_or(
-            DeserializeError::SourceNotFound { attr: "selector".to_string(), value: selector_str.to_string(), html_fragment: elem_ref.html() }
-        )?;
-        Ok(Self::from_html(first_elem.value().attr(attr).ok_or(
-            DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string(), html_fragment: first_elem.html() }
-        )?)?)
-    }
-
-    /// # Examples
-    ///
-    /// ```
-    /// use unhtml::scraper::{Html, Selector};
-    /// use unhtml::FromHtml;
-    /// let html = Html::parse_fragment(r#"
-    /// <body>
-    ///     <div id="test">
-    ///         <a>1</a>
-    ///     </div>
-    /// </body>
-    /// "#);
-    /// let selector = Selector::parse("#test").unwrap();
-    /// let result = u8::from_selector_and_inner_text("a", html.select(&selector).next().unwrap()).unwrap();
-    /// assert_eq!(1u8, result);
-    /// ```
-    fn from_selector_and_inner_text(selector_str: &str, elem_ref: ElementRef) -> Result<Self, Error> {
-        let selector = Selector::parse(selector_str).unwrap();
-        let first_elem = elem_ref.select(&selector).next().ok_or(
-            DeserializeError::SourceNotFound { attr: "selector".to_string(), value: selector_str.to_string(), html_fragment: elem_ref.html() }
-        )?;
-        Ok(Self::from_html(&first_elem.inner_html())?)
-    }
-
-    /// # Examples
-    ///
-    /// ```
-    /// use unhtml::scraper::{Html, Selector};
-    /// use unhtml::FromHtml;
-    /// let html = Html::parse_fragment(r#"
-    ///     <!DOCTYPE html>
-    /// <html lang="en">
-    /// <head>
-    ///     <meta charset="UTF-8">
-    ///     <title>Title</title>
-    /// </head>
-    /// <body>
-    ///     <div id="test">
-    ///         <a>1</a>
-    ///     </div>
-    /// </body>
-    /// </html>
-    /// "#);
-    /// let selector = Selector::parse("#test").unwrap();
-    /// let result = String::from_selector_and_html("a", html.select(&selector).next().unwrap()).unwrap();
-    /// assert_eq!("<a>1</a>".to_string(), result);
-    /// ```
-    fn from_selector_and_html(selector_str: &str, elem_ref: ElementRef) -> Result<Self, Error> {
-        let selector = Selector::parse(selector_str).unwrap();
-        let first_elem = elem_ref.select(&selector).next().ok_or(
-            DeserializeError::SourceNotFound { attr: "selector".to_string(), value: selector_str.to_string(), html_fragment: elem_ref.html() }
-        )?;
-        Self::from_html_ref(first_elem)
-    }
-
-    /// # Examples
-    ///
-    /// ```
-    /// use unhtml::scraper::{Html, Selector};
-    /// use unhtml::FromHtml;
-    /// let html = Html::parse_fragment(r#"
-    ///     <!DOCTYPE html>
-    /// <html lang="en">
-    /// <head>
-    ///     <meta charset="UTF-8">
-    ///     <title>Title</title>
-    /// </head>
-    /// <body>
-    ///     <div id="test">
-    ///         <a href="1"></a>
-    ///     </div>
-    /// </body>
-    /// </html>
-    /// "#);
-    /// let selector = Selector::parse("#test > a").unwrap();
-    /// let result = u8::from_attr("href", html.select(&selector).next().unwrap()).unwrap();
-    /// assert_eq!(1u8, result);
-    /// ```
-    fn from_attr(attr: &str, elem_ref: ElementRef) -> Result<Self, Error> {
-        Ok(Self::from_html(elem_ref.value().attr(attr).ok_or(
-            DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string(), html_fragment: elem_ref.html() }
-        )?)?)
-    }
-
-    /// # Examples
-    ///
-    /// ```
-    /// use unhtml::scraper::{Html, Selector};
-    /// use unhtml::FromHtml;
-    /// let html = Html::parse_fragment(r#"
-    ///     <!DOCTYPE html>
-    /// <html lang="en">
-    /// <head>
-    ///     <meta charset="UTF-8">
-    ///     <title>Title</title>
-    /// </head>
-    /// <body>
-    ///     <div id="test">
-    ///         <a>1</a>
-    ///     </div>
-    /// </body>
-    /// </html>
-    /// "#);
-    /// let selector = Selector::parse("#test > a").unwrap();
-    /// let result = u8::from_inner_text(html.select(&selector).next().unwrap()).unwrap();
-    /// assert_eq!(1u8, result);
-    /// ```
-    fn from_inner_text(elem_ref: ElementRef) -> Result<Self, Error> {
-        Self::from_html(&elem_ref.inner_html())
-    }
-
-    /// # Examples
-    ///
-    /// ```
-    /// use unhtml::scraper::{Html, Selector};
-    /// use unhtml::FromHtml;
-    /// let html = Html::parse_fragment(r#"
     /// <!DOCTYPE html>
     /// <html lang="en">
     /// <head>
@@ -170,10 +47,10 @@ pub trait FromHtml: Sized {
     /// </html>
     /// "#);
     /// let selector = Selector::parse("#test > a").unwrap();
-    /// let result = String::from_html_ref(html.select(&selector).next().unwrap()).unwrap();
+    /// let result = String::from_elements(html.select(&selector).next().unwrap()).unwrap();
     /// assert_eq!("<a>1</a>".to_string(), result);
     /// ```
-    fn from_html_ref(elem_ref: ElementRef) -> Result<Self, Error>;
+    fn from_elements(select: ElemIter) -> Result<Self, Error>;
 
     /// implemented by default for all types that implemented `FromStr<Err=E> where E: std::error::Error`
     /// # Examples
@@ -183,152 +60,31 @@ pub trait FromHtml: Sized {
     /// assert_eq!(1u8, result);
     /// ```
     fn from_html(html: &str) -> Result<Self, Error> {
-        Self::from_html_ref(Html::parse_fragment(html).root_element())
+        let root_selector = Selector::parse(":root").unwrap();
+        Self::from_elements(&mut Html::parse_fragment(html).select(&root_selector))
     }
 }
 
-/// Deserialize `Vec<T>` from html where `T`implemented `FromHtml`
-pub trait VecFromHtml {
-    type Elem: FromHtml;
-
-    /// # Examples
-    /// ```
-    /// use unhtml::scraper::{Html};
-    /// use unhtml::VecFromHtml;
-    /// let html = Html::parse_fragment(r#"
-    /// <!DOCTYPE html>
-    /// <html lang="en">
-    /// <head>
-    ///     <meta charset="UTF-8">
-    ///     <title>Title</title>
-    /// </head>
-    /// <body>
-    ///     <div id="test">
-    ///         <a href="1"></a>
-    ///         <a href="2"></a>
-    ///         <a href="3"></a>
-    ///     </div>
-    /// </body>
-    /// </html>
-    /// "#);
-    /// let results = Vec::<u8>::from_attr("#test > a", "href", html.root_element()).unwrap();
-    /// assert_eq!(1u8, results[0]);
-    /// assert_eq!(2u8, results[1]);
-    /// assert_eq!(3u8, results[2]);
-    /// ```
-    fn from_attr(selector_str: &str, attr: &str, root_element_ref: ElementRef) -> Result<Vec<Self::Elem>, Error> {
-        util::vec_from(selector_str, root_element_ref, |element_ref| {
-            Ok(Self::Elem::from_html(
-                element_ref.value().attr(attr).ok_or(
-                    DeserializeError::SourceNotFound { attr: "attr".to_string(), value: attr.to_string(), html_fragment: element_ref.html() }
-                )?
-            )?)
-        })
-    }
-
-    /// # Examples
-    /// ```
-    /// use unhtml::scraper::{Html};
-    /// use unhtml::VecFromHtml;
-    /// let html = Html::parse_fragment(r#"
-    /// <!DOCTYPE html>
-    /// <html lang="en">
-    /// <head>
-    ///     <meta charset="UTF-8">
-    ///     <title>Title</title>
-    /// </head>
-    /// <body>
-    ///     <div id="test">
-    ///         <a>1</a>
-    ///         <a>2</a>
-    ///         <a>3</a>
-    ///     </div>
-    /// </body>
-    /// </html>
-    /// "#);
-    /// let results = Vec::<u8>::from_inner_text("#test > a", html.root_element()).unwrap();
-    /// assert_eq!(1u8, results[0]);
-    /// assert_eq!(2u8, results[1]);
-    /// assert_eq!(3u8, results[2]);
-    /// ```
-    fn from_inner_text(selector_str: &str, root_element_ref: ElementRef) -> Result<Vec<Self::Elem>, Error> {
-        util::vec_from(selector_str, root_element_ref, |element_ref| {
-            Ok(Self::Elem::from_html(&element_ref.inner_html())?)
-        })
-    }
-
-    /// # Examples
-    /// ```
-    /// use unhtml::scraper::{Html};
-    /// use unhtml::VecFromHtml;
-    /// let html = Html::parse_fragment(r#"
-    /// <!DOCTYPE html>
-    /// <html lang="en">
-    /// <head>
-    ///     <meta charset="UTF-8">
-    ///     <title>Title</title>
-    /// </head>
-    /// <body>
-    ///     <div id="test">
-    ///         <a href="1"></a>
-    ///         <a href="2"></a>
-    ///         <a href="3"></a>
-    ///     </div>
-    /// </body>
-    /// </html>
-    /// "#);
-    /// let results = Vec::<String>::from_html_ref("#test > a", html.root_element()).unwrap();
-    /// assert_eq!(r#"<a href="1"></a>"#, results[0]);
-    /// assert_eq!(r#"<a href="2"></a>"#, results[1]);
-    /// assert_eq!(r#"<a href="3"></a>"#, results[2]);
-    /// ```
-    fn from_html_ref(selector_str: &str, root_element_ref: ElementRef) -> Result<Vec<Self::Elem>, Error> {
-        util::vec_from(selector_str, root_element_ref, |element_ref| {
-            Ok(Self::Elem::from_html_ref(element_ref)?)
-        })
-    }
-
-    /// # Examples
-    /// ```
-    /// use unhtml::VecFromHtml;
-    /// let results = Vec::<String>::from_html("#test > a", r#"
-    /// <!DOCTYPE html>
-    /// <html lang="en">
-    /// <head>
-    ///     <meta charset="UTF-8">
-    ///     <title>Title</title>
-    /// </head>
-    /// <body>
-    ///     <div id="test">
-    ///         <a href="1"></a>
-    ///         <a href="2"></a>
-    ///         <a href="3"></a>
-    ///     </div>
-    /// </body>
-    /// </html>
-    /// "#).unwrap();
-    /// assert_eq!(r#"<a href="1"></a>"#, results[0]);
-    /// assert_eq!(r#"<a href="2"></a>"#, results[1]);
-    /// assert_eq!(r#"<a href="3"></a>"#, results[2]);
-    /// ```
-    fn from_html(selector_str: &str, html: &str) -> Result<Vec<Self::Elem>, Error> {
-        Self::from_html_ref(selector_str, Html::parse_fragment(html).root_element())
-    }
+pub trait FromText: Sized {
+    fn from_inner_text(select: ElemIter) -> Result<Self, Error>;
+    fn from_attr(select: ElemIter, attr: &str) -> Result<Self, Error>;
 }
 
-impl<E, T> FromHtml for T
-    where E: failure::Fail,
-          T: FromStr<Err=E> {
-    fn from_html_ref(elem_ref: ElementRef) -> Result<Self, Error> {
-        Self::from_html(&elem_ref.html())
+impl<T> FromText for T
+where
+    T: FromStr,
+    T::Err: failure::Fail,
+{
+    fn from_inner_text(select: ElemIter) -> Result<Self, Error> {
+        let first = select.next().ok_or(HtmlError::SourceEmpty)?;
+        Ok(first.inner_html().trim().parse()?)
     }
-
-    fn from_html(html: &str) -> Result<Self, Error> {
-        Ok(T::from_str(html.trim())?)
+    fn from_attr(select: ElemIter, attr: &str) -> Result<Self, Error> {
+        let first = select.next().ok_or(HtmlError::SourceEmpty)?;
+        let attr = first.value().attr(attr).ok_or(HtmlError::SourceNotFound {
+            source_type: "attr".into(),
+            source_name: attr.into(),
+        })?;
+        Ok(attr.trim().parse()?)
     }
-}
-
-impl<T> VecFromHtml for Vec<T>
-    where T: FromHtml {
-    type Elem = T;
 }

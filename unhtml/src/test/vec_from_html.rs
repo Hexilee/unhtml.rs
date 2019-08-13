@@ -3,7 +3,8 @@ use scraper::Html;
 
 #[test]
 fn test_from_attr() {
-    let html = Html::parse_fragment(r#"
+    let html = Html::parse_fragment(
+        r#"
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -18,7 +19,8 @@ fn test_from_attr() {
         </div>
     </body>
     </html>
-    "#);
+    "#,
+    );
     let results = Vec::<u8>::from_attr("#test > a", "href", html.root_element()).unwrap();
     assert_eq!(1u8, results[0]);
     assert_eq!(2u8, results[1]);
@@ -27,7 +29,8 @@ fn test_from_attr() {
 
 #[test]
 fn test_from_html_ref() {
-    let html = Html::parse_fragment(r#"
+    let html = Html::parse_fragment(
+        r#"
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -42,7 +45,8 @@ fn test_from_html_ref() {
         </div>
     </body>
     </html>
-    "#);
+    "#,
+    );
     let results = Vec::<String>::from_html_ref("#test > a", html.root_element()).unwrap();
     assert_eq!(r#"<a href="1"></a>"#, results[0]);
     assert_eq!(r#"<a href="2"></a>"#, results[1]);
@@ -51,7 +55,9 @@ fn test_from_html_ref() {
 
 #[test]
 fn test_from_html() {
-    let results = Vec::<String>::from_html("#test > a", r#"
+    let results = Vec::<String>::from_html(
+        "#test > a",
+        r#"
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -66,7 +72,9 @@ fn test_from_html() {
         </div>
     </body>
     </html>
-    "#).unwrap();
+    "#,
+    )
+    .unwrap();
     assert_eq!(r#"<a href="1"></a>"#, results[0]);
     assert_eq!(r#"<a href="2"></a>"#, results[1]);
     assert_eq!(r#"<a href="3"></a>"#, results[2]);
@@ -74,7 +82,8 @@ fn test_from_html() {
 
 #[test]
 fn test_from_inner_text() {
-    let html = Html::parse_fragment(r#"
+    let html = Html::parse_fragment(
+        r#"
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -89,7 +98,8 @@ fn test_from_inner_text() {
         </div>
     </body>
     </html>
-    "#);
+    "#,
+    );
     let results = Vec::<u8>::from_inner_text("#test > a", html.root_element()).unwrap();
     assert_eq!(1u8, results[0]);
     assert_eq!(2u8, results[1]);

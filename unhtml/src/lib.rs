@@ -59,16 +59,11 @@
 //! assert_eq!(2u8, results[1]);
 //! assert_eq!(3u8, results[2]);
 
-#[macro_use]
-extern crate failure_derive;
-
+mod err;
 #[cfg(test)]
 mod test;
-mod err;
 mod traits;
-mod util;
 pub use self::err::*;
 pub use self::traits::*;
-pub use scraper;
 pub use failure;
-
+pub use scraper;
