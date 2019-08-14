@@ -69,9 +69,42 @@ pub trait FromHtml: Sized {
     }
 }
 
+pub trait Elements<'a, T> {
+    fn elements(&'a mut self) -> Result<T, Error>;
+}
+
 pub trait FromText: Sized {
     fn from_inner_text(select: ElemIter) -> Result<Self, Error>;
     fn from_attr(select: ElemIter, attr: &str) -> Result<Self, Error>;
+}
+
+pub trait Text<'a, T> {
+    fn inner_text(&'a mut self) -> Result<T, Error>;
+    fn attr(&'a mut self, attr: &str) -> Result<T, Error>;
+}
+
+impl<'a, T, I> Elements<'a, T> for I
+where
+    T: FromHtml,
+    I: Iterator<Item = ElementRef<'a>> + 'a,
+{
+    fn elements(&'a mut self) -> Result<T, Error> {
+        T::from_elements(self)
+    }
+}
+
+impl<'a, T, I> Text<'a, T> for I
+where
+    T: FromText,
+    I: Iterator<Item = ElementRef<'a>> + 'a,
+{
+    fn inner_text(&'a mut self) -> Result<T, Error> {
+        T::from_inner_text(self)
+    }
+
+    fn attr(&'a mut self, attr: &str) -> Result<T, Error> {
+        T::from_attr(self, attr)
+    }
 }
 
 impl<T> FromText for Option<T>
@@ -112,7 +145,7 @@ where
     fn from_inner_text(select: ElemIter) -> Result<Self, Error> {
         let mut ret = vec![];
         for elem in select {
-            ret.push(T::from_inner_text(&mut vec![elem].into_iter())?)
+            ret.push(vec![elem].into_iter().inner_text()?)
         }
         Ok(ret)
     }
@@ -120,7 +153,7 @@ where
     fn from_attr(select: ElemIter, attr: &str) -> Result<Self, Error> {
         let mut ret = vec![];
         for elem in select {
-            ret.push(T::from_attr(&mut vec![elem].into_iter(), attr)?)
+            ret.push(vec![elem].into_iter().attr(attr)?)
         }
         Ok(ret)
     }
@@ -133,7 +166,7 @@ where
     fn from_elements(select: ElemIter) -> Result<Self, Error> {
         let mut ret = vec![];
         for elem in select {
-            ret.push(T::from_elements(&mut vec![elem].into_iter())?)
+            ret.push(vec![elem].into_iter().elements()?)
         }
         Ok(ret)
     }

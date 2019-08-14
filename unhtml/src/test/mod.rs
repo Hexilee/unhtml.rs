@@ -1,2 +1,2 @@
 mod from_html;
-mod vec_from_html;
+mod from_text;
