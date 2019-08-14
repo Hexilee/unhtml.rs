@@ -13,3 +13,8 @@ mod test;
 mod traits;
 pub use self::err::*;
 pub use self::traits::*;
+
+#[cfg(feature = "derive")]
+pub mod derive {
+    pub use unhtml_derive::{FromHtml, FromText};
+}

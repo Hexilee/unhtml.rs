@@ -1,6 +1,6 @@
 [package]
 name = "unhtml_derive"
-version = "0.5.3"
+version = "0.7.0"
 authors = ["Hexilee <hexileee@gmail.com>"]
 edition = "2018"
 license = "MIT"
