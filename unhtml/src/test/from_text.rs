@@ -1,4 +1,4 @@
-use crate::Text;
+use crate::{Result, Text};
 use scraper::{Html, Selector};
 
 #[test]
@@ -82,7 +82,7 @@ fn test_fail_inner_text() {
         </div>
     "##,
     );
-    let foo_result: Result<u8, _> = html.select(&foo_selector).inner_text();
+    let foo_result: Result<u8> = html.select(&foo_selector).inner_text();
     assert!(!foo_result.is_ok());
 }
 
@@ -167,6 +167,6 @@ fn test_fail_attr() {
         </div>
     "##,
     );
-    let foo_result: Result<u8, _> = html.select(&foo_selector).attr("value");
+    let foo_result: Result<u8> = html.select(&foo_selector).attr("value");
     assert!(!foo_result.is_ok());
 }

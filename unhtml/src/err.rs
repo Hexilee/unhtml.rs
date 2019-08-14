@@ -10,3 +10,5 @@ pub enum HtmlError {
     #[fail(display = "source is empty (selected nothing)")]
     SourceEmpty,
 }
+
+pub type Result<T> = std::result::Result<T, failure::Error>;
