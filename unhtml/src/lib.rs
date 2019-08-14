@@ -6,6 +6,7 @@
 //!
 
 pub extern crate failure;
+pub extern crate scraper;
 mod err;
 #[cfg(test)]
 mod test;

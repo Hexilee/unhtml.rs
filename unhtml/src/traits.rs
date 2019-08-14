@@ -39,8 +39,8 @@ pub trait FromHtml: Sized {
     }
 }
 
-pub trait Elements<'a, T> {
-    fn elements(&'a mut self) -> Result<T>;
+pub trait Element<'a, T> {
+    fn element(&'a mut self) -> Result<T>;
 }
 
 pub trait FromText: Sized {
@@ -53,12 +53,12 @@ pub trait Text<'a, T> {
     fn attr(&'a mut self, attr: &str) -> Result<T>;
 }
 
-impl<'a, T, I> Elements<'a, T> for I
+impl<'a, T, I> Element<'a, T> for I
 where
     T: FromHtml,
     I: Iterator<Item = ElementRef<'a>> + 'a,
 {
-    fn elements(&'a mut self) -> Result<T> {
+    fn element(&'a mut self) -> Result<T> {
         T::from_elements(self)
     }
 }
@@ -136,7 +136,7 @@ where
     fn from_elements(select: ElemIter) -> Result<Self> {
         let mut ret = vec![];
         for elem in select {
-            ret.push(vec![elem].into_iter().elements()?)
+            ret.push(vec![elem].into_iter().element()?)
         }
         Ok(ret)
     }
@@ -158,7 +158,11 @@ macro_rules! from_text {
             impl FromText for $typ {
                 fn from_inner_text(select: ElemIter) -> Result<Self> {
                     let first = select.next().ok_or(HtmlError::SourceEmpty)?;
-                    Ok(first.inner_html().trim().parse()?)
+                    let mut ret = String::new();
+                    for next_segment in first.text() {
+                        ret += next_segment.trim();
+                    }
+                    Ok(ret.parse()?)
                 }
                 fn from_attr(select: ElemIter, attr: &str) -> Result<Self> {
                     let first = select.next().ok_or(HtmlError::SourceEmpty)?;

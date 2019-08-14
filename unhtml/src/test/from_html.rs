@@ -1,5 +1,9 @@
-use crate::{ElemIter, Elements, FromHtml, Result};
+use crate::{
+    scraper::{ElementRef, Html, Selector},
+    ElemIter, Element, FromHtml, Result, Text,
+};
 
+#[derive(Debug, Eq, PartialEq)]
 struct Link {
     href: String,
     text: String,
@@ -7,6 +11,35 @@ struct Link {
 
 impl FromHtml for Link {
     fn from_elements(select: ElemIter) -> Result<Self> {
-        unimplemented!()
+        let elements: Vec<ElementRef> = select.collect();
+        Ok(Self {
+            href: elements.clone().into_iter().attr("href")?,
+            text: elements.clone().into_iter().inner_text()?,
+        })
     }
+}
+
+#[test]
+fn test_element() {
+    let selector = Selector::parse("a").unwrap();
+    let html = Html::parse_fragment(
+        r##"
+        <div>
+            <div>
+                <a href="https://github.com"> Github </p>
+            </div>
+            <div>
+                <a href="https://www.zjuqsc.com"> ZJU QSC </p>
+            </div>
+            <a href="https://google.com"> Google </p>
+        </div>
+    "##,
+    );
+    assert_eq!(
+        Link {
+            href: "https://github.com".into(),
+            text: "Github".into()
+        },
+        html.select(&selector).element().unwrap()
+    );
 }
