@@ -29,3 +29,9 @@ name = "derive-text"
 path = "derive-tests/text.rs"
 edition = "2018"
 required-features = ["derive"]
+
+[[test]]
+name = "derive-html"
+path = "derive-tests/html.rs"
+edition = "2018"
+required-features = ["derive"]
