@@ -23,3 +23,9 @@ derive = ["unhtml_derive"]
 
 [badges]
 travis-ci = { repository = "Hexilee/unhtml.rs", branch = "master" }
+
+[[test]]
+name = "derive-text"
+path = "derive-tests/text.rs"
+edition = "2018"
+required-features = ["derive"]
