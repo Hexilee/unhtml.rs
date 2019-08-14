@@ -708,7 +708,6 @@ mod text;
 
 use proc_macro::{Diagnostic, TokenStream};
 use quote::quote;
-use syn::{parse_macro_input, DeriveInput, ItemTrait};
 
 #[proc_macro_derive(FromHtml, attributes(html))]
 pub fn html_derive(input: TokenStream) -> TokenStream {

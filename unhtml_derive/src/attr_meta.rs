@@ -1,3 +1,4 @@
+use crate::Result;
 use proc_macro::{Diagnostic, Level};
 use quote::quote;
 use scraper::Selector;
@@ -34,7 +35,7 @@ impl Default for AttrMeta {
 
 impl TryFrom<Vec<Attribute>> for AttrMeta {
     type Error = Diagnostic;
-    fn try_from(attrs: Vec<Attribute>) -> Result<Self, Self::Error> {
+    fn try_from(attrs: Vec<Attribute>) -> Result<Self> {
         match filter_attrs(attrs)? {
             Meta::Path(_) => Ok(Default::default()),
             Meta::NameValue(name_value) => Err(diagnostic_invalid_attribute!(quote!(#name_value))),
@@ -44,7 +45,7 @@ impl TryFrom<Vec<Attribute>> for AttrMeta {
 }
 
 impl AttrMeta {
-    fn try_from_meta_list(meta_list: MetaList) -> Result<Self, Diagnostic> {
+    fn try_from_meta_list(meta_list: MetaList) -> Result<Self> {
         let mut ret: AttrMeta = Default::default();
         for nested_meta in meta_list.nested.iter() {
             match nested_meta {
@@ -77,7 +78,7 @@ impl AttrMeta {
     }
 }
 
-fn filter_attrs(attrs: Vec<Attribute>) -> Result<Meta, Diagnostic> {
+fn filter_attrs(attrs: Vec<Attribute>) -> Result<Meta> {
     let attrs: Vec<Attribute> = attrs
         .into_iter()
         .filter_map(|attr| {
@@ -102,7 +103,7 @@ fn filter_attrs(attrs: Vec<Attribute>) -> Result<Meta, Diagnostic> {
         .map_err(|err| diagnostic_invalid_attribute!(err))
 }
 
-fn check_selector(selector: &str) -> Result<(), Diagnostic> {
+fn check_selector(selector: &str) -> Result<()> {
     Selector::parse(selector).map(|_| ()).map_err(|err| {
         Diagnostic::new(
             Level::Error,

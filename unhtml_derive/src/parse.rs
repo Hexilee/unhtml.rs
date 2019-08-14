@@ -1,7 +1,8 @@
+use crate::Result;
 use proc_macro::{Diagnostic, Level, TokenStream};
 use syn::parse::{Parse, Parser};
 
-pub fn try_parse<T: Parse>(token: TokenStream) -> Result<T, Diagnostic> {
+pub fn try_parse<T: Parse>(token: TokenStream) -> Result<T> {
     let copy = token.clone();
     <T as Parse>::parse.parse(token).map_err(|err| {
         Diagnostic::new(

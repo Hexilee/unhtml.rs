@@ -1,10 +1,10 @@
 use super::attr_meta::AttrMeta;
 use super::parse::try_parse;
-use proc_macro::Diagnostic;
+use crate::Result;
 use proc_macro2::TokenStream;
 use quote::quote;
 use std::convert::TryInto;
-use syn::{Attribute, Fields, ItemStruct, Lit};
+use syn::{Attribute, Fields, ItemStruct};
 
 const ATTR_INNER_TEXT: &str = "inner";
 
@@ -24,7 +24,7 @@ fn import() -> TokenStream {
 }
 
 // TODO: confirm no lifetime in generics
-pub fn derive(input: proc_macro::TokenStream) -> Result<TokenStream, Diagnostic> {
+pub fn derive(input: proc_macro::TokenStream) -> Result<TokenStream> {
     use_idents!(_select);
     let target = try_parse::<ItemStruct>(input)?;
     let (impl_generics, ty_generics, where_clause) = target.generics.split_for_impl();
@@ -58,7 +58,7 @@ fn define_elements(selector: Option<&String>) -> TokenStream {
     quote!(let #_elements: Vec<_> = #current_select.collect();)
 }
 
-fn gen_struct_field_values(fields: &Fields) -> Result<TokenStream, Diagnostic> {
+fn gen_struct_field_values(fields: &Fields) -> Result<TokenStream> {
     let mut field_pairs = quote!();
     for field in fields {
         let value = gen_field_value(field.attrs.clone())?;
@@ -71,7 +71,7 @@ fn gen_struct_field_values(fields: &Fields) -> Result<TokenStream, Diagnostic> {
     Ok(field_pairs)
 }
 
-fn gen_field_value(attr: Vec<Attribute>) -> Result<TokenStream, Diagnostic> {
+fn gen_field_value(attr: Vec<Attribute>) -> Result<TokenStream> {
     use_idents!(_elements);
     let meta: AttrMeta = attr.try_into()?;
     let new_select = quote!(#_elements.clone().into_iter());
