@@ -58,7 +58,6 @@
 //! assert_eq!(1u8, results[0]);
 //! assert_eq!(2u8, results[1]);
 //! assert_eq!(3u8, results[2]);
-
 mod err;
 #[cfg(test)]
 mod test;
