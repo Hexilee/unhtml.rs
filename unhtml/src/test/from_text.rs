@@ -38,10 +38,7 @@ fn test_vec_inner_text() {
     "##,
     );
     let result: Vec<u8> = html.select(&selector).inner_text().unwrap();
-    assert_eq!(3, result.len());
-    assert_eq!(1, result[0]);
-    assert_eq!(2, result[1]);
-    assert_eq!(3, result[2]);
+    assert_eq!(result, vec![1, 2, 3]);
 }
 
 #[test]
@@ -123,10 +120,7 @@ fn test_vec_attr() {
     "##,
     );
     let result: Vec<u8> = html.select(&selector).attr("value").unwrap();
-    assert_eq!(3, result.len());
-    assert_eq!(1, result[0]);
-    assert_eq!(2, result[1]);
-    assert_eq!(3, result[2]);
+    assert_eq!(result, vec![1, 2, 3]);
 }
 
 #[test]

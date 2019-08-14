@@ -26,12 +26,12 @@ fn test_element() {
         r##"
         <div>
             <div>
-                <a href="https://github.com"> Github </p>
+                <a href="https://github.com"> Github </a>
             </div>
             <div>
-                <a href="https://www.zjuqsc.com"> ZJU QSC </p>
+                <a href="https://www.zjuqsc.com"> ZJU QSC </a>
             </div>
-            <a href="https://google.com"> Google </p>
+            <a href="https://google.com"> Google </a>
         </div>
     "##,
     );
@@ -51,12 +51,12 @@ fn test_vec_element() {
         r##"
         <div>
             <div>
-                <a href="https://github.com"> Github </p>
+                <a href="https://github.com"> Github </a>
             </div>
             <div>
-                <a href="https://www.zjuqsc.com"> ZJU QSC </p>
+                <a href="https://www.zjuqsc.com"> ZJU QSC </a>
             </div>
-            <a href="https://google.com"> Google </p>
+            <a href="https://google.com"> Google </a>
         </div>
     "##,
     );
