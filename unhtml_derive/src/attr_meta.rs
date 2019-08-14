@@ -142,4 +142,22 @@ mod tests {
             .unwrap()
         );
     }
+
+    #[test]
+    fn test_parse_meta() {
+        assert_eq!(
+            AttrMeta {
+                selector: Some("a".into()),
+                attr: Some("href".into()),
+                default: true,
+            },
+            parse::<ItemStruct>(quote!(
+                #[html(selector = "a", attr = "href", default)]
+                struct A;
+            ))
+            .attrs
+            .try_into()
+            .unwrap()
+        );
+    }
 }
