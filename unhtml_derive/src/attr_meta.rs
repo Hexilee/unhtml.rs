@@ -15,7 +15,7 @@ macro_rules! diagnostic_invalid_attribute {
     };
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct AttrMeta {
     pub selector: Option<String>,
     pub attr: Option<String>,
@@ -115,24 +115,31 @@ fn get_lit_str_value(lit: &Lit) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::AttrMeta;
-    use crate::parse::try_parse;
+    use proc_macro2::TokenStream;
     use quote::quote;
     use std::convert::TryInto;
+    use syn::parse::{Parse, Parser};
     use syn::ItemStruct;
+
+    pub fn parse<T: Parse>(token: TokenStream) -> T {
+        <T as Parse>::parse.parse2(token).unwrap()
+    }
 
     #[test]
     fn test_parse_meta_default() {
-        let meta: AttrMeta = try_parse::<ItemStruct>(
-            r##"
+        assert_eq!(
+            AttrMeta {
+                selector: None,
+                attr: None,
+                default: false,
+            },
+            parse::<ItemStruct>(quote!(
                 #[html]
                 struct A;
-            "##
-            .parse()
-            .unwrap(),
-        )
-        .unwrap()
-        .attrs
-        .try_into()
-        .unwrap();
+            ))
+            .attrs
+            .try_into()
+            .unwrap()
+        );
     }
 }
