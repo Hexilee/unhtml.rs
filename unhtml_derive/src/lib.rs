@@ -704,8 +704,9 @@ extern crate proc_macro;
 mod attr_meta;
 mod html;
 mod parse;
+mod text;
 
-use proc_macro::TokenStream;
+use proc_macro::{Diagnostic, TokenStream};
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, ItemTrait};
 
@@ -718,3 +719,15 @@ pub fn html_derive(input: TokenStream) -> TokenStream {
         })
         .into()
 }
+
+#[proc_macro_derive(FromText)]
+pub fn text_derive(input: TokenStream) -> TokenStream {
+    text::derive(input)
+        .unwrap_or_else(|err| {
+            err.emit();
+            quote!()
+        })
+        .into()
+}
+
+type Result<T> = std::result::Result<T, Diagnostic>;
