@@ -80,3 +80,51 @@ fn test_vec_element() {
         ]
     );
 }
+
+#[test]
+fn test_fail_element() {
+    let foo_selector = Selector::parse("p").unwrap();
+    let html = Html::parse_fragment(
+        r##"
+        <div>
+            <div>
+                <a href="https://github.com"> Github </a>
+            </div>
+            <div>
+                <a href="https://www.zjuqsc.com"> ZJU QSC </a>
+            </div>
+            <a href="https://google.com"> Google </a>
+        </div>
+    "##,
+    );
+    let result: Result<Link> = html.select(&foo_selector).element();
+    assert!(!result.is_ok());
+}
+
+#[test]
+fn test_option_element() {
+    let selector = Selector::parse("a").unwrap();
+    let foo_selector = Selector::parse("p").unwrap();
+    let html = Html::parse_fragment(
+        r##"
+        <div>
+            <div>
+                <a href="https://github.com"> Github </a>
+            </div>
+            <div>
+                <a href="https://www.zjuqsc.com"> ZJU QSC </a>
+            </div>
+            <a href="https://google.com"> Google </a>
+        </div>
+    "##,
+    );
+    assert_eq!(
+        Some(Link {
+            href: "https://github.com".into(),
+            text: "Github".into(),
+        }),
+        html.select(&selector).element().unwrap()
+    );
+    let result: Option<Link> = html.select(&foo_selector).element().unwrap();
+    assert_eq!(result, None);
+}
