@@ -1,5 +1,5 @@
 use crate::{
-    scraper::{ElementRef, Html, Selector},
+    scraper::{Html, Selector},
     ElemIter, Element, FromHtml, Result, Text,
 };
 
@@ -11,7 +11,7 @@ struct Link {
 
 impl FromHtml for Link {
     fn from_elements(select: ElemIter) -> Result<Self> {
-        let elements: Vec<ElementRef> = select.collect();
+        let elements: Vec<_> = select.collect();
         Ok(Self {
             href: elements.clone().into_iter().attr("href")?,
             text: elements.clone().into_iter().inner_text()?,

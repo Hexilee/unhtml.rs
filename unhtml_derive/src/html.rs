@@ -14,6 +14,11 @@ pub macro use_idents {
     }
 }
 
+fn define_elements(selector: Option<&str>) -> TokenStream {
+    use_idents!(_select, _elements);
+    quote!(let #_elements: Vec<_> = _select.select_elements(#_select));
+}
+
 // TODO: confirm no lifetime in generics
 pub fn derive(input: proc_macro::TokenStream) -> Result<TokenStream, Diagnostic> {
     let target = try_parse::<ItemStruct>(input)?;
@@ -21,6 +26,7 @@ pub fn derive(input: proc_macro::TokenStream) -> Result<TokenStream, Diagnostic>
     let struct_name = target.ident.clone();
     use_idents!(_data, _root_element_ref);
     let attr_meta: AttrMeta = target.attrs.try_into()?;
+
     //    let root_element_ref_define_block = match top_macro_attr.selector {
     //        Some(selector) => {
     //            check_selector(&selector);
