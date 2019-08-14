@@ -16,14 +16,12 @@ pub macro use_idents {
 
 fn import() -> TokenStream {
     quote!(
-        use unhtml::{
-            scraper::{Html, Selector},
-            Element, Text,
-        };
+        use unhtml::{scraper::Selector, Element, Text};
     )
 }
 
 // TODO: confirm no lifetime in generics
+// TODO: impl default
 pub fn derive(input: proc_macro::TokenStream) -> Result<TokenStream> {
     use_idents!(_select);
     let target = try_parse::<ItemStruct>(input)?;
@@ -34,9 +32,9 @@ pub fn derive(input: proc_macro::TokenStream) -> Result<TokenStream> {
     let define_elements_statement = define_elements(attr_meta.selector.as_ref());
     let struct_field_values = gen_struct_field_values(&target.fields)?;
     let struct_value = match &target.fields {
-        Fields::Named(_) => quote!(#struct_name{#struct_field_values}),
-        Fields::Unnamed(_) => quote!(#struct_name(#struct_field_values)),
-        Fields::Unit => quote!(#struct_name),
+        Fields::Named(_) => quote!(Self{#struct_field_values}),
+        Fields::Unnamed(_) => quote!(Self(#struct_field_values)),
+        Fields::Unit => quote!(Self),
     };
     Ok(quote!(
         impl #impl_generics unhtml::FromHtml for #struct_name #ty_generics #where_clause {
@@ -66,7 +64,7 @@ fn gen_struct_field_values(fields: &Fields) -> Result<TokenStream> {
             Some(ident) => quote!(#ident: #value),
             None => quote!(#value),
         };
-        field_pairs = quote!(#field_pairs, #next_field);
+        field_pairs = quote!(#field_pairs #next_field, );
     }
     Ok(field_pairs)
 }
@@ -80,7 +78,7 @@ fn gen_field_value(attr: Vec<Attribute>) -> Result<TokenStream> {
         None => quote!(#new_select),
     };
     let result = match meta.attr.as_ref() {
-        Some(attr) if attr == ATTR_INNER_TEXT => quote!(#current_select.iner_text()),
+        Some(attr) if attr == ATTR_INNER_TEXT => quote!(#current_select.inner_text()),
         Some(attr) => quote!(#current_select.attr(#attr)),
         None => quote!(#current_select.element()),
     };
