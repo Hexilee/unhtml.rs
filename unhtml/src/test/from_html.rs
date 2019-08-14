@@ -38,8 +38,45 @@ fn test_element() {
     assert_eq!(
         Link {
             href: "https://github.com".into(),
-            text: "Github".into()
+            text: "Github".into(),
         },
         html.select(&selector).element().unwrap()
+    );
+}
+
+#[test]
+fn test_vec_element() {
+    let selector = Selector::parse("a").unwrap();
+    let html = Html::parse_fragment(
+        r##"
+        <div>
+            <div>
+                <a href="https://github.com"> Github </p>
+            </div>
+            <div>
+                <a href="https://www.zjuqsc.com"> ZJU QSC </p>
+            </div>
+            <a href="https://google.com"> Google </p>
+        </div>
+    "##,
+    );
+
+    let actual: Vec<Link> = html.select(&selector).element().unwrap();
+    assert_eq!(
+        actual,
+        vec![
+            Link {
+                href: "https://github.com".into(),
+                text: "Github".into(),
+            },
+            Link {
+                href: "https://www.zjuqsc.com".into(),
+                text: "ZJU QSC".into(),
+            },
+            Link {
+                href: "https://google.com".into(),
+                text: "Google".into(),
+            },
+        ]
     );
 }
