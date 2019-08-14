@@ -2,7 +2,7 @@ use proc_macro::{Diagnostic, Level};
 use quote::quote;
 use scraper::Selector;
 use std::convert::TryFrom;
-use syn::{Attribute, Lit, Meta, NestedMeta};
+use syn::{Attribute, Lit, Meta, MetaList, NestedMeta};
 
 const HTML_ATTR: &str = "html";
 const SELECTOR_ATTR: &str = "selector";
@@ -22,54 +22,58 @@ pub struct AttrMeta {
     pub default: bool,
 }
 
+impl Default for AttrMeta {
+    fn default() -> Self {
+        Self {
+            selector: None,
+            attr: None,
+            default: false,
+        }
+    }
+}
+
 impl TryFrom<Vec<Attribute>> for AttrMeta {
     type Error = Diagnostic;
     fn try_from(attrs: Vec<Attribute>) -> Result<Self, Self::Error> {
-        let meta = filter_attrs(attrs)?;
-        let mut selector = None;
-        let mut attr = None;
-        let mut default = false;
-        match meta {
-            Meta::Path(_) => (),
-            Meta::NameValue(_) => return Err(diagnostic_invalid_attribute!(quote!(#meta))),
-            Meta::List(ref list) => {
-                for nested_meta in list.nested.iter() {
-                    match nested_meta {
-                        NestedMeta::Lit(_) => {
-                            return Err(diagnostic_invalid_attribute!(quote!(#meta)));
-                        }
-                        NestedMeta::Meta(inner_meta) => match inner_meta {
-                            Meta::Path(path) if path.is_ident(DEFAULT_ATTR) => {
-                                default = true;
-                            }
-                            Meta::NameValue(named_value) => {
-                                if named_value.path.is_ident(SELECTOR_ATTR) {
-                                    let selector_lit = get_lit_str_value(&named_value.lit).ok_or(
-                                        Diagnostic::new(
-                                            Level::Error,
-                                            "selector should be str literal",
-                                        ),
-                                    )?;
-                                    check_selector(&selector_lit)?;
-                                    selector = Some(selector_lit);
-                                } else if named_value.path.is_ident(ATTR_ATTR) {
-                                    let attr_lit = get_lit_str_value(&named_value.lit).ok_or(
-                                        Diagnostic::new(Level::Error, "attr should be str literal"),
-                                    )?;
-                                    attr = Some(attr_lit);
-                                }
-                            }
-                            _ => return Err(diagnostic_invalid_attribute!(quote!(#meta))),
-                        },
-                    }
+        match filter_attrs(attrs)? {
+            Meta::Path(_) => Ok(Default::default()),
+            Meta::NameValue(name_value) => Err(diagnostic_invalid_attribute!(quote!(#name_value))),
+            Meta::List(list) => Self::try_from_meta_list(list),
+        }
+    }
+}
+
+impl AttrMeta {
+    fn try_from_meta_list(meta_list: MetaList) -> Result<Self, Diagnostic> {
+        let mut ret: AttrMeta = Default::default();
+        for nested_meta in meta_list.nested.iter() {
+            match nested_meta {
+                NestedMeta::Lit(_) => {
+                    return Err(diagnostic_invalid_attribute!(quote!(#meta_list)));
                 }
+                NestedMeta::Meta(inner_meta) => match inner_meta {
+                    Meta::Path(path) if path.is_ident(DEFAULT_ATTR) => {
+                        ret.default = true;
+                    }
+                    Meta::NameValue(named_value) => {
+                        if named_value.path.is_ident(SELECTOR_ATTR) {
+                            let selector_lit = get_lit_str_value(&named_value.lit).ok_or(
+                                Diagnostic::new(Level::Error, "selector should be str literal"),
+                            )?;
+                            check_selector(&selector_lit)?;
+                            ret.selector = Some(selector_lit);
+                        } else if named_value.path.is_ident(ATTR_ATTR) {
+                            let attr_lit = get_lit_str_value(&named_value.lit).ok_or(
+                                Diagnostic::new(Level::Error, "attr should be str literal"),
+                            )?;
+                            ret.attr = Some(attr_lit);
+                        }
+                    }
+                    _ => return Err(diagnostic_invalid_attribute!(quote!(#meta_list))),
+                },
             }
         }
-        Ok(Self {
-            selector,
-            attr,
-            default,
-        })
+        Ok(ret)
     }
 }
 
