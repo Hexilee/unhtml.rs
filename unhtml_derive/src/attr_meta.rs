@@ -30,20 +30,20 @@ impl TryFrom<Vec<Attribute>> for AttrMeta {
         let mut attr = None;
         let mut default = false;
         match meta {
-            Meta::Word(ident) => (),
+            Meta::Path(_) => (),
             Meta::NameValue(_) => return Err(diagnostic_invalid_attribute!(quote!(#meta))),
             Meta::List(ref list) => {
                 for nested_meta in list.nested.iter() {
                     match nested_meta {
-                        NestedMeta::Literal(_) => {
+                        NestedMeta::Lit(_) => {
                             return Err(diagnostic_invalid_attribute!(quote!(#meta)));
                         }
                         NestedMeta::Meta(inner_meta) => match inner_meta {
-                            Meta::Word(ident) if ident == DEFAULT_ATTR => {
+                            Meta::Path(path) if path.is_ident(DEFAULT_ATTR) => {
                                 default = true;
                             }
                             Meta::NameValue(named_value) => {
-                                if named_value.ident == SELECTOR_ATTR {
+                                if named_value.path.is_ident(SELECTOR_ATTR) {
                                     let selector_lit = get_lit_str_value(&named_value.lit).ok_or(
                                         Diagnostic::new(
                                             Level::Error,
@@ -52,7 +52,7 @@ impl TryFrom<Vec<Attribute>> for AttrMeta {
                                     )?;
                                     check_selector(&selector_lit)?;
                                     selector = Some(selector_lit);
-                                } else if named_value.ident == ATTR_ATTR {
+                                } else if named_value.path.is_ident(ATTR_ATTR) {
                                     let attr_lit = get_lit_str_value(&named_value.lit).ok_or(
                                         Diagnostic::new(Level::Error, "attr should be str literal"),
                                     )?;
