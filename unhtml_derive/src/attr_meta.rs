@@ -1,4 +1,5 @@
 use proc_macro::{Diagnostic, Level};
+use quote::quote;
 use scraper::Selector;
 use std::convert::TryFrom;
 use syn::{Attribute, Lit, Meta, NestedMeta};
@@ -31,11 +32,11 @@ impl TryFrom<Vec<Attribute>> for AttrMeta {
         match meta {
             Meta::Word(ident) => (),
             Meta::NameValue(_) => return Err(diagnostic_invalid_attribute!(quote!(#meta))),
-            Meta::List(list) => {
+            Meta::List(ref list) => {
                 for nested_meta in list.nested.iter() {
                     match nested_meta {
                         NestedMeta::Literal(_) => {
-                            return Err(diagnostic_invalid_attribute!(quote!(#meta)))
+                            return Err(diagnostic_invalid_attribute!(quote!(#meta)));
                         }
                         NestedMeta::Meta(inner_meta) => match inner_meta {
                             Meta::Word(ident) if ident == DEFAULT_ATTR => {
@@ -91,7 +92,7 @@ fn filter_attrs(attrs: Vec<Attribute>) -> Result<Meta, Diagnostic> {
     }
     attrs
         .into_iter()
-        .first()
+        .next()
         .unwrap()
         .parse_meta()
         .map_err(|err| diagnostic_invalid_attribute!(err))
@@ -108,5 +109,30 @@ fn get_lit_str_value(lit: &Lit) -> Option<String> {
         Some(str_lit.value())
     } else {
         None
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::AttrMeta;
+    use crate::parse::try_parse;
+    use quote::quote;
+    use std::convert::TryInto;
+    use syn::ItemStruct;
+
+    #[test]
+    fn test_parse_meta_default() {
+        let meta: AttrMeta = try_parse::<ItemStruct>(
+            r##"
+                #[html]
+                struct A;
+            "##
+            .parse()
+            .unwrap(),
+        )
+        .unwrap()
+        .attrs
+        .try_into()
+        .unwrap();
     }
 }

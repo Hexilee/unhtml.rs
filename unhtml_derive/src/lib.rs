@@ -1,4 +1,4 @@
-#![feature(proc_macro_diagnostic)]
+#![feature(proc_macro_diagnostic, decl_macro)]
 
 //! ## unhtml_derive
 //!
@@ -702,7 +702,7 @@
 extern crate proc_macro;
 
 mod attr_meta;
-mod derive;
+mod html;
 mod parse;
 
 use proc_macro::TokenStream;
@@ -710,8 +710,8 @@ use quote::quote;
 use syn::{parse_macro_input, DeriveInput, ItemTrait};
 
 #[proc_macro_derive(FromHtml, attributes(html))]
-fn unhtml_derive(input: TokenStream) -> TokenStream {
-    derive::derive(input)
+pub fn html_derive(input: TokenStream) -> TokenStream {
+    html::derive(input)
         .unwrap_or_else(|err| {
             err.emit();
             quote!()
