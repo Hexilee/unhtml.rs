@@ -37,9 +37,11 @@ impl TryFrom<Vec<Attribute>> for AttrMeta {
     type Error = Diagnostic;
     fn try_from(attrs: Vec<Attribute>) -> Result<Self> {
         match filter_attrs(attrs)? {
-            Meta::Path(_) => Ok(Default::default()),
-            Meta::NameValue(name_value) => Err(diagnostic_invalid_attribute!(quote!(#name_value))),
-            Meta::List(list) => Self::try_from_meta_list(list),
+            None | Some(Meta::Path(_)) => Ok(Default::default()),
+            Some(Meta::NameValue(name_value)) => {
+                Err(diagnostic_invalid_attribute!(quote!(#name_value)))
+            }
+            Some(Meta::List(list)) => Self::try_from_meta_list(list),
         }
     }
 }
@@ -78,7 +80,7 @@ impl AttrMeta {
     }
 }
 
-fn filter_attrs(attrs: Vec<Attribute>) -> Result<Meta> {
+fn filter_attrs(attrs: Vec<Attribute>) -> Result<Option<Meta>> {
     let attrs: Vec<Attribute> = attrs
         .into_iter()
         .filter_map(|attr| {
@@ -89,18 +91,24 @@ fn filter_attrs(attrs: Vec<Attribute>) -> Result<Meta> {
             }
         })
         .collect();
-    if attrs.len() != 1 {
+    if attrs.is_empty() {
+        return Ok(None);
+    }
+
+    if attrs.len() > 1 {
         return Err(Diagnostic::new(
             Level::Error,
             "each derived target or field can only have one `html` attribute",
         ));
     }
-    attrs
-        .into_iter()
-        .next()
-        .unwrap()
-        .parse_meta()
-        .map_err(|err| diagnostic_invalid_attribute!(err))
+    Ok(Some(
+        attrs
+            .into_iter()
+            .next()
+            .unwrap()
+            .parse_meta()
+            .map_err(|err| diagnostic_invalid_attribute!(err))?,
+    ))
 }
 
 fn check_selector(selector: &str) -> Result<()> {
