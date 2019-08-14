@@ -103,9 +103,12 @@ fn filter_attrs(attrs: Vec<Attribute>) -> Result<Meta, Diagnostic> {
 }
 
 fn check_selector(selector: &str) -> Result<(), Diagnostic> {
-    Selector::parse(selector)
-        .map(|_| ())
-        .map_err(|err| Diagnostic::new(Level::Error, format!("invalid css selector: {}", selector)))
+    Selector::parse(selector).map(|_| ()).map_err(|err| {
+        Diagnostic::new(
+            Level::Error,
+            format!("invalid css selector `{}`: {:?}", selector, err),
+        )
+    })
 }
 
 fn get_lit_str_value(lit: &Lit) -> Option<String> {
