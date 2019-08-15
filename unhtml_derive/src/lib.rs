@@ -1,4 +1,4 @@
-#![feature(proc_macro_diagnostic, decl_macro)]
+#![feature(proc_macro_diagnostic)]
 
 //! ## unhtml_derive
 //!
