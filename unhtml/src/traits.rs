@@ -35,7 +35,7 @@ pub trait FromHtml: Sized {
 
     fn from_html(html: &str) -> Result<Self> {
         let root_selector = Selector::parse(":root").unwrap();
-        Self::from_elements(&mut Html::parse_fragment(html).select(&root_selector))
+        Self::from_elements(&mut Html::parse_document(html).select(&root_selector))
     }
 }
 
