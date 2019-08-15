@@ -1,13 +1,13 @@
 [package]
 name = "unhtml_derive"
-version = "0.7.0"
+version = "0.7.1"
 authors = ["Hexilee <hexileee@gmail.com>"]
 edition = "2018"
 license = "MIT"
 description = "proc macro derive for unhtml"
 repository = "https://github.com/Hexilee/unhtml.rs"
-keywords = ["unhtml", "html", "deserializor", "derive"]
-categories = ["encoding"]
+keywords = ["unhtml", "html", "parser", "derive"]
+categories = ["parser-implementations", "web-programming", "encoding"]
 readme = "README.md"
 documentation = "https://docs.rs/unhtml_derive"
 

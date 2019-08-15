@@ -1,13 +1,13 @@
 [package]
 name = "unhtml"
-version = "0.7.0"
+version = "0.7.1"
 authors = ["Hexilee <hexileee@gmail.com>"]
 edition = "2018"
 license = "MIT"
-description = "deserializor from html"
+description = "A magic html parser"
 repository = "https://github.com/Hexilee/unhtml.rs"
-keywords = ["unhtml", "html", "deserializor"]
-categories = ["encoding"]
+keywords = ["unhtml", "html", "parser"]
+categories = ["parser-implementations", "web-programming", "encoding"]
 readme = "README.md"
 documentation = "https://docs.rs/unhtml"
 
@@ -23,15 +23,3 @@ derive = ["unhtml_derive"]
 
 [badges]
 travis-ci = { repository = "Hexilee/unhtml.rs", branch = "master" }
-
-[[test]]
-name = "derive-text"
-path = "derive-tests/text.rs"
-edition = "2018"
-required-features = ["derive"]
-
-[[test]]
-name = "derive-html"
-path = "derive-tests/html.rs"
-edition = "2018"
-required-features = ["derive"]

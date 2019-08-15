@@ -1,6 +1,6 @@
-use scraper::{Html, Selector};
 use std::str::FromStr;
 use unhtml::derive::FromText;
+use unhtml::scraper::{Html, Selector};
 use unhtml::{failure::Error, Result, Text};
 
 #[derive(Debug, FromText, Eq, PartialEq)]
