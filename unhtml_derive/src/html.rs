@@ -74,7 +74,7 @@ fn gen_field_value(attr: Vec<Attribute>) -> Result<TokenStream> {
     let current_select = quote!(#_elements.clone().into_iter());
     let new_select = match meta.selector.as_ref() {
         Some(selector) => quote!(
-            #current_select.select_elements(&Selector::parse(#selector).unwrap()).collect::<Vec<_>>().into_iter()
+            #current_select.select_elements(&Selector::parse(#selector).unwrap())
         ),
         None => quote!(#current_select),
     };

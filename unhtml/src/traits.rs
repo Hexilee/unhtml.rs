@@ -27,7 +27,7 @@ where
     }
 }
 
-pub type ElemIter<'a> = &'a mut (dyn Iterator<Item = ElementRef<'a>> + 'a);
+pub type ElemIter<'b, 'a> = &'b mut (dyn Iterator<Item = ElementRef<'a>> + 'b);
 
 /// parse html
 pub trait FromHtml: Sized {
@@ -39,8 +39,8 @@ pub trait FromHtml: Sized {
     }
 }
 
-pub trait Element<'a, T> {
-    fn element(&'a mut self) -> Result<T>;
+pub trait Element<'b, 'a: 'b, T: 'a> {
+    fn element(&'b mut self) -> Result<T>;
 }
 
 pub trait FromText: Sized {
@@ -48,31 +48,31 @@ pub trait FromText: Sized {
     fn from_attr(select: ElemIter, attr: &str) -> Result<Self>;
 }
 
-pub trait Text<'a, T> {
-    fn inner_text(&'a mut self) -> Result<T>;
-    fn attr(&'a mut self, attr: &str) -> Result<T>;
+pub trait Text<'b, 'a: 'b, T: 'a> {
+    fn inner_text(&'b mut self) -> Result<T>;
+    fn attr(&'b mut self, attr: &'b str) -> Result<T>;
 }
 
-impl<'a, T, I> Element<'a, T> for I
+impl<'b, 'a: 'b, T, I> Element<'b, 'a, T> for I
 where
-    T: FromHtml,
-    I: Iterator<Item = ElementRef<'a>> + 'a,
+    T: FromHtml + 'a,
+    I: Iterator<Item = ElementRef<'a>> + 'b,
 {
-    fn element(&'a mut self) -> Result<T> {
+    fn element(&'b mut self) -> Result<T> {
         T::from_elements(self)
     }
 }
 
-impl<'a, T, I> Text<'a, T> for I
+impl<'b, 'a: 'b, T, I> Text<'b, 'a, T> for I
 where
-    T: FromText,
-    I: Iterator<Item = ElementRef<'a>> + 'a,
+    T: FromText + 'a,
+    I: Iterator<Item = ElementRef<'a>> + 'b,
 {
-    fn inner_text(&'a mut self) -> Result<T> {
+    fn inner_text(&'b mut self) -> Result<T> {
         T::from_inner_text(self)
     }
 
-    fn attr(&'a mut self, attr: &str) -> Result<T> {
+    fn attr(&'b mut self, attr: &'b str) -> Result<T> {
         T::from_attr(self, attr)
     }
 }
