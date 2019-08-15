@@ -9,19 +9,18 @@ use syn::{Attribute, Fields, ItemStruct};
 const ATTR_INNER_TEXT: &str = "inner";
 
 pub macro use_idents {
-    ($($idents:ident),*) => {
-        $(let $idents = quote!($idents);)*
-    }
+($ ($ idents: ident), *) => {
+$ (let $ idents = quote ! ($ idents);) *
+}
 }
 
 fn import() -> TokenStream {
     quote!(
-        use unhtml::{scraper::Selector, Element, Text};
+        use unhtml::{scraper::Selector, Element, Text, Select};
     )
 }
 
 // TODO: confirm no lifetime in generics
-// TODO: impl default
 pub fn derive(input: proc_macro::TokenStream) -> Result<TokenStream> {
     use_idents!(_select);
     let target = try_parse::<ItemStruct>(input)?;
@@ -70,20 +69,30 @@ fn gen_struct_field_values(fields: &Fields) -> Result<TokenStream> {
 }
 
 fn gen_field_value(attr: Vec<Attribute>) -> Result<TokenStream> {
-    use_idents!(_elements);
+    use_idents!(_elements, _current_select, _selector);
     let meta: AttrMeta = attr.try_into()?;
     let new_select = quote!(#_elements.clone().into_iter());
-    let current_select = match meta.selector.as_ref() {
-        Some(selector) => quote!(#new_select.select_elements(&Selector::parse(#selector).unwrap())),
-        None => quote!(#new_select),
+    let define_current_select = match meta.selector.as_ref() {
+        Some(selector) => quote!(
+            let #_selector = Selector::parse(#selector).unwrap();
+            let mut #_current_select = #new_select.select_elements(&#_selector);
+        ),
+        None => quote!(let mut #_current_select = #new_select;),
     };
+
     let result = match meta.attr.as_ref() {
-        Some(attr) if attr == ATTR_INNER_TEXT => quote!(#current_select.inner_text()),
-        Some(attr) => quote!(#current_select.attr(#attr)),
-        None => quote!(#current_select.element()),
+        Some(attr) if attr == ATTR_INNER_TEXT => quote!(#_current_select.inner_text()),
+        Some(attr) => quote!(#_current_select.attr(#attr)),
+        None => quote!(#_current_select.element()),
     };
-    Ok(match meta.default {
-        true => quote!(#result.unwrap_or(Default::default())),
+    let processed_result = match meta.default {
+        true => quote!(
+            #result.unwrap_or(Default::default())
+        ),
         false => quote!(#result?),
-    })
+    };
+    Ok(quote!({
+          #define_current_select
+          #processed_result
+    }))
 }

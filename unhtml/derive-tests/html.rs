@@ -5,7 +5,7 @@ use unhtml::{
 
 use unhtml::derive::FromHtml;
 
-#[derive(Debug, Eq, PartialEq, FromHtml)]
+#[derive(FromHtml, Debug, Eq, PartialEq)]
 struct Link {
     #[html(attr = "href")]
     href: String,
@@ -13,6 +13,17 @@ struct Link {
     #[html(attr = "inner")]
     text: String,
 }
+
+#[derive(FromHtml, Debug, Eq, PartialEq)]
+struct Website {
+    #[html(selector = "title", attr = "inner")]
+    title: Option<String>,
+
+    #[html(selector = "a")]
+    links: Vec<Link>,
+}
+
+
 
 #[test]
 fn test_element() {
