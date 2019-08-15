@@ -8,21 +8,21 @@ use std::num::{
 };
 use std::path::PathBuf;
 
-pub trait Select<'a> {
+pub trait Select<'b, 'a: 'b> {
     fn select_elements(
         self,
-        selector: &'a Selector,
-    ) -> Box<dyn Iterator<Item = ElementRef<'a>> + 'a>;
+        selector: &'b Selector,
+    ) -> Box<dyn Iterator<Item = ElementRef<'a>> + 'b>;
 }
 
-impl<'a, T> Select<'a> for T
+impl<'b, 'a: 'b, T> Select<'b, 'a> for T
 where
-    T: Iterator<Item = ElementRef<'a>> + 'a,
+    T: Iterator<Item = ElementRef<'a>> + 'b,
 {
     fn select_elements(
         self,
-        selector: &'a Selector,
-    ) -> Box<dyn Iterator<Item = ElementRef<'a>> + 'a> {
+        selector: &'b Selector,
+    ) -> Box<dyn Iterator<Item = ElementRef<'a>> + 'b> {
         Box::new(self.flat_map(move |elem_ref| elem_ref.select(selector)))
     }
 }
