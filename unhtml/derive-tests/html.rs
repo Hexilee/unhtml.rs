@@ -23,8 +23,6 @@ struct Website {
     links: Vec<Link>,
 }
 
-
-
 #[test]
 fn test_element() {
     let selector = Selector::parse("a").unwrap();
