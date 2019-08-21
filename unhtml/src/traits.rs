@@ -162,12 +162,12 @@ macro_rules! from_text {
                     for next_segment in first.text() {
                         ret += next_segment.trim();
                     }
-                    <$typ>::from_str(&ret).map_err(|err| (ret.to_owned(), stringify!($typ).to_owned(), err.to_string()).into())
+                    Self::from_str(&ret).map_err(|err| (ret.to_owned(), stringify!($typ).to_owned(), err.to_string()).into())
                 }
                 fn from_attr(select: ElemIter, attr: &str) -> Result<Self> {
                     let first = select.next().ok_or(())?;
                     let attr = first.value().attr(attr).ok_or((attr.to_owned(), first.html()))?;
-                    <$typ>::from_str(attr.trim()).map_err(|err| (attr.trim().to_owned(), stringify!($typ).to_owned(), err.to_string()).into())
+                    Self::from_str(attr.trim()).map_err(|err| (attr.trim().to_owned(), stringify!($typ).to_owned(), err.to_string()).into())
                 }
             }
         )*
