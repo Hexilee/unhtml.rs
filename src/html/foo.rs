@@ -1,9 +1,7 @@
 use unhtml::{
     scraper::{Html, Selector},
-    Element, Result,
+    Element, Result, FromHtml
 };
-
-use unhtml::derive::FromHtml;
 
 #[derive(FromHtml, Debug, Eq, PartialEq)]
 pub struct Link {

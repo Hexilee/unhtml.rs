@@ -1,14 +1,13 @@
 use std::str::FromStr;
-use unhtml::derive::FromText;
 use unhtml::scraper::{Html, Selector};
-use unhtml::{failure::Error, Result, Text};
+use unhtml::{Text, FromText, Error};
 
 #[derive(Debug, FromText, Eq, PartialEq)]
 struct U8(u8);
 
 impl FromStr for U8 {
-    type Err = Error;
-    fn from_str(s: &str) -> Result<Self> {
+    type Err = <u8 as FromStr>::Err;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self(s.parse()?))
     }
 }
@@ -90,7 +89,7 @@ fn test_fail_inner_text() {
         </div>
     "##,
     );
-    let foo_result: Result<U8> = html.select(&foo_selector).inner_text();
+    let foo_result: Result<U8, Error> = html.select(&foo_selector).inner_text();
     assert!(!foo_result.is_ok());
 }
 
@@ -171,6 +170,6 @@ fn test_fail_attr() {
         </div>
     "##,
     );
-    let foo_result: Result<U8> = html.select(&foo_selector).attr("value");
+    let foo_result: Result<U8, Error> = html.select(&foo_selector).attr("value");
     assert!(!foo_result.is_ok());
 }

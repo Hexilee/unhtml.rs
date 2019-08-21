@@ -1,5 +1,4 @@
 use super::foo::Link;
-use unhtml::derive::FromHtml;
 use unhtml::FromHtml;
 
 #[derive(FromHtml, Debug, Eq, PartialEq)]
