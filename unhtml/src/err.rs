@@ -1,14 +1,18 @@
-use failure_derive::Fail;
+use derive_more::{Display, From};
 
-#[derive(Fail, Debug)]
-pub enum HtmlError {
-    #[fail(display = "{}({}) get nothing", source_type, source_name)]
-    SourceNotFound {
-        source_type: String,
-        source_name: String,
+// TODO: SourceNotFound should contain selector info
+#[derive(Display, Debug, From)]
+pub enum Error {
+    #[display(fmt = "source not found")]
+    SourceNotFound,
+    #[display(fmt = "attr(`{}`) is not found in `{}`", attr, src)]
+    AttrNotFound { attr: String, src: String },
+    #[display(fmt = "{} cannot be parsed as {}: {}", text, type_name, err)]
+    TextParseError {
+        text: String,
+        type_name: String,
+        err: String,
     },
-    #[fail(display = "source is empty (selected nothing)")]
-    SourceEmpty,
 }
 
-pub type Result<T> = std::result::Result<T, failure::Error>;
+pub type Result<T> = std::result::Result<T, Error>;

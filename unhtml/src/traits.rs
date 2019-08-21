@@ -1,4 +1,3 @@
-use super::err::HtmlError;
 use crate::Result;
 use scraper::{ElementRef, Html, Selector};
 use std::net::{Ipv4Addr, Ipv6Addr, SocketAddrV4, SocketAddrV6};
@@ -7,6 +6,7 @@ use std::num::{
     NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU8, NonZeroUsize,
 };
 use std::path::PathBuf;
+use std::str::FromStr;
 
 pub trait Select<'b, 'a: 'b> {
     fn select_elements(
@@ -157,20 +157,17 @@ macro_rules! from_text {
         $(
             impl FromText for $typ {
                 fn from_inner_text(select: ElemIter) -> Result<Self> {
-                    let first = select.next().ok_or(HtmlError::SourceEmpty)?;
+                    let first = select.next().ok_or(())?;
                     let mut ret = String::new();
                     for next_segment in first.text() {
                         ret += next_segment.trim();
                     }
-                    Ok(ret.parse()?)
+                    <$typ>::from_str(&ret).map_err(|err| (ret.to_owned(), stringify!($typ).to_owned(), err.to_string()).into())
                 }
                 fn from_attr(select: ElemIter, attr: &str) -> Result<Self> {
-                    let first = select.next().ok_or(HtmlError::SourceEmpty)?;
-                    let attr = first.value().attr(attr).ok_or(HtmlError::SourceNotFound {
-                        source_type: "attr".into(),
-                        source_name: attr.into(),
-                    })?;
-                    Ok(attr.trim().parse()?)
+                    let first = select.next().ok_or(())?;
+                    let attr = first.value().attr(attr).ok_or((attr.to_owned(), first.html()))?;
+                    <$typ>::from_str(attr.trim()).map_err(|err| (attr.trim().to_owned(), stringify!($typ).to_owned(), err.to_string()).into())
                 }
             }
         )*

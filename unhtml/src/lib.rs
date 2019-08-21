@@ -5,16 +5,16 @@
 //!
 //!
 
-pub extern crate failure;
 pub extern crate scraper;
+#[doc(inline)]
+pub use self::err::{Error, Result};
+#[doc(inline)]
+pub use self::traits::{ElemIter, Element, FromHtml, FromText, Select, Text};
+
+#[cfg(feature = "derive")]
+pub use unhtml_derive::{FromHtml, FromText};
+
 mod err;
 #[cfg(test)]
 mod test;
 mod traits;
-pub use self::err::*;
-pub use self::traits::*;
-
-#[cfg(feature = "derive")]
-pub mod derive {
-    pub use unhtml_derive::{FromHtml, FromText};
-}
