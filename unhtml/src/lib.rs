@@ -4,6 +4,7 @@
 //! [![Rust Docs](https://docs.rs/unhtml/badge.svg)](https://docs.rs/unhtml)
 //!
 //!
+#![feature(specialization)]
 
 pub extern crate scraper;
 #[doc(inline)]

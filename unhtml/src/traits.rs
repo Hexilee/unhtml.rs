@@ -77,6 +77,20 @@ where
     }
 }
 
+default impl<T> FromText for T
+where
+    T: FromStr,
+    T::Err: ToString,
+{
+    fn from_inner_text(select: ElemIter) -> Result<Self> {
+        unimplemented!()
+    }
+
+    fn from_attr(select: ElemIter, attr: &str) -> Result<Self> {
+        unimplemented!()
+    }
+}
+
 impl<T> FromText for Option<T>
 where
     T: FromText,
