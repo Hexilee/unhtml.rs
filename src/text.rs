@@ -1,6 +1,6 @@
 use std::str::FromStr;
 use unhtml::scraper::{Html, Selector};
-use unhtml::{Text, FromText, Error};
+use unhtml::{Error, FromText, Text};
 
 #[derive(Debug, FromText, Eq, PartialEq)]
 struct U8(u8);
