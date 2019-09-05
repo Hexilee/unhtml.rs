@@ -1,11 +1,6 @@
 use crate::Result;
 use scraper::{ElementRef, Html, Selector};
-use std::net::{Ipv4Addr, Ipv6Addr, SocketAddrV4, SocketAddrV6};
-use std::num::{
-    NonZeroI128, NonZeroI16, NonZeroI32, NonZeroI64, NonZeroI8, NonZeroIsize, NonZeroU128,
-    NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU8, NonZeroUsize,
-};
-use std::path::PathBuf;
+use std::any::type_name;
 use std::str::FromStr;
 
 pub trait Select<'b, 'a: 'b> {
@@ -83,11 +78,34 @@ where
     T::Err: ToString,
 {
     fn from_inner_text(select: ElemIter) -> Result<Self> {
-        unimplemented!()
+        let first = select.next().ok_or(())?;
+        let mut ret = String::new();
+        for next_segment in first.text() {
+            ret += next_segment.trim();
+        }
+        Self::from_str(&ret).map_err(|err| {
+            (
+                ret.to_owned(),
+                type_name::<Self>().to_owned(),
+                err.to_string(),
+            )
+                .into()
+        })
     }
-
     fn from_attr(select: ElemIter, attr: &str) -> Result<Self> {
-        unimplemented!()
+        let first = select.next().ok_or(())?;
+        let attr = first
+            .value()
+            .attr(attr)
+            .ok_or((attr.to_owned(), first.html()))?;
+        Self::from_str(attr.trim()).map_err(|err| {
+            (
+                attr.trim().to_owned(),
+                type_name::<Self>().to_owned(),
+                err.to_string(),
+            )
+                .into()
+        })
     }
 }
 
@@ -165,60 +183,3 @@ impl FromText for () {
         Ok(())
     }
 }
-
-macro_rules! from_text {
-    ($($typ:ty),*) => {
-        $(
-            impl FromText for $typ {
-                fn from_inner_text(select: ElemIter) -> Result<Self> {
-                    let first = select.next().ok_or(())?;
-                    let mut ret = String::new();
-                    for next_segment in first.text() {
-                        ret += next_segment.trim();
-                    }
-                    Self::from_str(&ret).map_err(|err| (ret.to_owned(), stringify!($typ).to_owned(), err.to_string()).into())
-                }
-                fn from_attr(select: ElemIter, attr: &str) -> Result<Self> {
-                    let first = select.next().ok_or(())?;
-                    let attr = first.value().attr(attr).ok_or((attr.to_owned(), first.html()))?;
-                    Self::from_str(attr.trim()).map_err(|err| (attr.trim().to_owned(), stringify!($typ).to_owned(), err.to_string()).into())
-                }
-            }
-        )*
-    };
-}
-
-from_text!(
-    u8,
-    u16,
-    u32,
-    u64,
-    u128,
-    usize,
-    i8,
-    i16,
-    i32,
-    i64,
-    i128,
-    isize,
-    f32,
-    f64,
-    String,
-    Ipv4Addr,
-    Ipv6Addr,
-    SocketAddrV4,
-    SocketAddrV6,
-    NonZeroU8,
-    NonZeroU16,
-    NonZeroU32,
-    NonZeroU64,
-    NonZeroU128,
-    NonZeroUsize,
-    NonZeroI8,
-    NonZeroI16,
-    NonZeroI32,
-    NonZeroI64,
-    NonZeroI128,
-    NonZeroIsize,
-    PathBuf
-);
