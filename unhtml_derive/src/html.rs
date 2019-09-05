@@ -1,4 +1,4 @@
-use super::attr_meta::AttrMeta;
+use super::attr_meta::{AttrMeta, DefaultAttr};
 use super::parse::try_parse;
 use crate::Result;
 use proc_macro2::TokenStream;
@@ -84,10 +84,12 @@ fn gen_field_value(attr: Vec<Attribute>) -> Result<TokenStream> {
         Some(attr) => quote!(#new_select.attr(#attr)),
         None => quote!(#new_select.element()),
     };
+
     Ok(match meta.default {
-        true => quote!(
-            #result.unwrap_or(Default::default())
+        DefaultAttr::None => quote!(#result?),
+        DefaultAttr::DefaultImpl => quote!(
+            #result.unwrap_or_else(|_| ::core::default::Default::default())
         ),
-        false => quote!(#result?),
+        DefaultAttr::Value(expr) => quote!(#result.unwrap_or_else(|_| ::core::convert::From::from(#expr))),
     })
 }

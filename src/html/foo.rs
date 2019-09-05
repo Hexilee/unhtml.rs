@@ -1,6 +1,6 @@
 use unhtml::{
     scraper::{Html, Selector},
-    Element, Result, FromHtml
+    Element, FromHtml, Result,
 };
 
 #[derive(FromHtml, Debug, Eq, PartialEq)]

@@ -1,26 +1,27 @@
 use crate::Result;
 use proc_macro::{Diagnostic, Level};
-use quote::quote;
 use scraper::Selector;
 use std::convert::TryFrom;
-use syn::{Attribute, Lit, Meta, MetaList, NestedMeta};
+use std::fmt::Debug;
+use syn::{parse, punctuated::Punctuated, Attribute, Expr, Ident, LitStr, Token};
 
 const HTML_ATTR: &str = "html";
 const SELECTOR_ATTR: &str = "selector";
 const ATTR_ATTR: &str = "attr";
 const DEFAULT_ATTR: &str = "default";
 
-macro_rules! diagnostic_invalid_attribute {
-    ($attr:expr) => {
-        Diagnostic::new(Level::Error, format!("invalid `html` attribute: {}", $attr))
-    };
+#[derive(Debug, Eq, PartialEq)]
+pub enum DefaultAttr {
+    None,
+    DefaultImpl,
+    Value(syn::Expr),
 }
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct AttrMeta {
     pub selector: Option<String>,
     pub attr: Option<String>,
-    pub default: bool,
+    pub default: DefaultAttr,
 }
 
 impl Default for AttrMeta {
@@ -28,7 +29,78 @@ impl Default for AttrMeta {
         Self {
             selector: None,
             attr: None,
-            default: false,
+            default: DefaultAttr::None,
+        }
+    }
+}
+
+impl parse::Parse for AttrMeta {
+    fn parse(input: parse::ParseStream) -> syn::Result<Self> {
+        let attrs: Punctuated<Attr, Token![,]> = input.parse_terminated(|input| input.parse())?;
+
+        let mut meta = AttrMeta::default();
+        for attr in attrs {
+            match attr {
+                Attr::Selector(lit_str) => meta.selector = Some(lit_str.value()),
+                Attr::Attr(lit_str) => meta.attr = Some(lit_str.value()),
+                Attr::Default(def) => meta.default = def,
+            }
+        }
+        Ok(meta)
+    }
+}
+
+#[derive(Debug)]
+enum Attr {
+    Selector(LitStr),
+    Attr(LitStr),
+    Default(DefaultAttr),
+}
+
+impl parse::Parse for Attr {
+    fn parse(input: parse::ParseStream) -> syn::Result<Self> {
+        let name: Ident = input.parse()?;
+        match &*name.to_string() {
+            // default = ...
+            DEFAULT_ATTR if input.peek(Token![=]) => {
+                let _: Token![=] = input.parse()?;
+                let expr: Expr = input.parse()?;
+
+                Ok(Attr::Default(DefaultAttr::Value(expr)))
+            }
+            // default
+            DEFAULT_ATTR => Ok(Attr::Default(DefaultAttr::DefaultImpl)),
+            // attr = "..."
+            ATTR_ATTR if input.peek(Token![=]) && input.peek2(LitStr) => {
+                let _: Token![=] = input.parse()?;
+                let lit_str: LitStr = input.parse()?;
+
+                Ok(Attr::Attr(lit_str))
+            }
+            ATTR_ATTR if input.peek(Token![=]) => {
+                let _: Token![=] = input.parse()?;
+                Err(input.error("expected string literal"))
+            }
+            // selector = "..."
+            SELECTOR_ATTR if input.peek(Token![=]) && input.peek2(LitStr) => {
+                let _: Token![=] = input.parse()?;
+                let lit_str: LitStr = input.parse()?;
+
+                if let Err(e) = check_selector(&lit_str.value()) {
+                    return Err(input.error(e.message()));
+                }
+
+                Ok(Attr::Selector(lit_str))
+            }
+            ATTR_ATTR | SELECTOR_ATTR if input.peek(Token![=]) => {
+                let _: Token![=] = input.parse()?;
+                Err(input.error("expected string literal"))
+            }
+            ATTR_ATTR | SELECTOR_ATTR => Err(input.error(format!(
+                "missing '=', expected to find '{} = \"...\"'",
+                name.to_string()
+            ))),
+            name => Err(input.error(format!("invalid `html` attribute: {}", name))),
         }
     }
 }
@@ -36,79 +108,25 @@ impl Default for AttrMeta {
 impl TryFrom<Vec<Attribute>> for AttrMeta {
     type Error = Diagnostic;
     fn try_from(attrs: Vec<Attribute>) -> Result<Self> {
-        match filter_attrs(attrs)? {
-            None | Some(Meta::Path(_)) => Ok(Default::default()),
-            Some(Meta::NameValue(name_value)) => {
-                Err(diagnostic_invalid_attribute!(quote!(#name_value)))
-            }
-            Some(Meta::List(list)) => Self::try_from_meta_list(list),
-        }
-    }
-}
-
-impl AttrMeta {
-    fn try_from_meta_list(meta_list: MetaList) -> Result<Self> {
-        let mut ret: AttrMeta = Default::default();
-        for nested_meta in meta_list.nested.iter() {
-            match nested_meta {
-                NestedMeta::Lit(_) => {
-                    return Err(diagnostic_invalid_attribute!(quote!(#meta_list)));
-                }
-                NestedMeta::Meta(inner_meta) => match inner_meta {
-                    Meta::Path(path) if path.is_ident(DEFAULT_ATTR) => {
-                        ret.default = true;
-                    }
-                    Meta::NameValue(named_value) => {
-                        if named_value.path.is_ident(SELECTOR_ATTR) {
-                            let selector_lit = get_lit_str_value(&named_value.lit).ok_or(
-                                Diagnostic::new(Level::Error, "selector should be str literal"),
-                            )?;
-                            check_selector(&selector_lit)?;
-                            ret.selector = Some(selector_lit);
-                        } else if named_value.path.is_ident(ATTR_ATTR) {
-                            let attr_lit = get_lit_str_value(&named_value.lit).ok_or(
-                                Diagnostic::new(Level::Error, "attr should be str literal"),
-                            )?;
-                            ret.attr = Some(attr_lit);
-                        }
-                    }
-                    _ => return Err(diagnostic_invalid_attribute!(quote!(#meta_list))),
-                },
-            }
-        }
-        Ok(ret)
-    }
-}
-
-fn filter_attrs(attrs: Vec<Attribute>) -> Result<Option<Meta>> {
-    let attrs: Vec<Attribute> = attrs
-        .into_iter()
-        .filter_map(|attr| {
-            if attr.path.is_ident(HTML_ATTR) {
-                Some(attr)
-            } else {
-                None
-            }
-        })
-        .collect();
-    if attrs.is_empty() {
-        return Ok(None);
-    }
-
-    if attrs.len() > 1 {
-        return Err(Diagnostic::new(
-            Level::Error,
-            "each derived target or field can only have one `html` attribute",
-        ));
-    }
-    Ok(Some(
-        attrs
+        let mut html_attrs = attrs
             .into_iter()
-            .next()
-            .unwrap()
-            .parse_meta()
-            .map_err(|err| diagnostic_invalid_attribute!(err))?,
-    ))
+            .filter(|attr| attr.path.is_ident(HTML_ATTR));
+
+        match (html_attrs.next(), html_attrs.next()) {
+            (Some(ref only), None) if !only.tokens.is_empty() => only.parse_args().map_err(|e| {
+                Diagnostic::new(
+                    Level::Error,
+                    format!("unable to parse `html` attributes: {}", e.to_string()),
+                )
+            }),
+            // Either no attribute at all or attribute with empty contents
+            (_, None) => Ok(Default::default()),
+            (_, _) => Err(Diagnostic::new(
+                Level::Error,
+                "there cannot be multiple `html` attributes",
+            )),
+        }
+    }
 }
 
 fn check_selector(selector: &str) -> Result<()> {
@@ -120,20 +138,12 @@ fn check_selector(selector: &str) -> Result<()> {
     })
 }
 
-fn get_lit_str_value(lit: &Lit) -> Option<String> {
-    if let &Lit::Str(ref str_lit) = lit {
-        Some(str_lit.value())
-    } else {
-        None
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use super::AttrMeta;
+    use super::{AttrMeta, DefaultAttr};
     use proc_macro2::TokenStream;
     use quote::quote;
-    use std::convert::TryInto;
+    use std::convert::{TryFrom, TryInto};
     use syn::parse::{Parse, Parser};
     use syn::ItemStruct;
 
@@ -147,7 +157,7 @@ mod tests {
             AttrMeta {
                 selector: None,
                 attr: None,
-                default: false,
+                default: DefaultAttr::None,
             },
             parse::<ItemStruct>(quote!(
                 #[html]
@@ -165,7 +175,7 @@ mod tests {
             AttrMeta {
                 selector: Some("a".into()),
                 attr: Some("href".into()),
-                default: true,
+                default: DefaultAttr::DefaultImpl,
             },
             parse::<ItemStruct>(quote!(
                 #[html(selector = "a", attr = "href", default)]
@@ -175,5 +185,68 @@ mod tests {
             .try_into()
             .unwrap()
         );
+    }
+
+    #[test]
+    fn test_parse_meta_default_fn_expr() {
+        assert_eq!(
+            AttrMeta {
+                selector: Some("a".into()),
+                attr: Some("href".into()),
+                default: DefaultAttr::Value(syn::parse2(quote!(asdf())).unwrap()),
+            },
+            parse::<ItemStruct>(quote!(
+                #[html(selector = "a", attr = "href", default = asdf())]
+                struct A;
+            ))
+            .attrs
+            .try_into()
+            .unwrap()
+        );
+    }
+
+    #[test]
+    fn test_parse_meta_default_expr() {
+        assert_eq!(
+            AttrMeta {
+                selector: Some("a".into()),
+                attr: Some("href".into()),
+                default: DefaultAttr::Value(syn::parse2(quote!(123)).unwrap()),
+            },
+            parse::<ItemStruct>(quote!(
+                #[html(selector = "a", attr = "href", default = 123)]
+                struct A;
+            ))
+            .attrs
+            .try_into()
+            .unwrap()
+        );
+    }
+
+    #[test]
+    fn test_parse_meta_invalid_selector() {
+        let e = AttrMeta::try_from(
+            parse::<ItemStruct>(quote!(
+                #[html(selector = "->", attr = "href", default = 123)]
+                struct A;
+            ))
+            .attrs,
+        )
+        .unwrap_err();
+
+        assert!(e.message().contains("invalid css"));
+    }
+
+    #[test]
+    fn test_parse_meta_bigger() {
+        let meta = AttrMeta::try_from(
+            parse::<ItemStruct>(quote!(
+                struct A;
+            ))
+            .attrs,
+        )
+        .unwrap();
+
+        assert_eq!(AttrMeta::default(), meta);
     }
 }
