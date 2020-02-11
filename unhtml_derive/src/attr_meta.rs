@@ -1,9 +1,8 @@
-use crate::Result;
-use proc_macro::{Diagnostic, Level};
+use proc_macro2::Span;
 use scraper::Selector;
 use std::convert::TryFrom;
 use std::fmt::Debug;
-use syn::{parse, punctuated::Punctuated, Attribute, Expr, Ident, LitStr, Token};
+use syn::{parse, punctuated::Punctuated, Attribute, Error, Expr, Ident, LitStr, Result, Token};
 
 const HTML_ATTR: &str = "html";
 const SELECTOR_ATTR: &str = "selector";
@@ -35,7 +34,7 @@ impl Default for AttrMeta {
 }
 
 impl parse::Parse for AttrMeta {
-    fn parse(input: parse::ParseStream) -> syn::Result<Self> {
+    fn parse(input: parse::ParseStream) -> Result<Self> {
         let attrs: Punctuated<Attr, Token![,]> = input.parse_terminated(|input| input.parse())?;
 
         let mut meta = AttrMeta::default();
@@ -58,7 +57,7 @@ enum Attr {
 }
 
 impl parse::Parse for Attr {
-    fn parse(input: parse::ParseStream) -> syn::Result<Self> {
+    fn parse(input: parse::ParseStream) -> Result<Self> {
         let name: Ident = input.parse()?;
         match &*name.to_string() {
             // default = ...
@@ -85,11 +84,7 @@ impl parse::Parse for Attr {
             SELECTOR_ATTR if input.peek(Token![=]) && input.peek2(LitStr) => {
                 let _: Token![=] = input.parse()?;
                 let lit_str: LitStr = input.parse()?;
-
-                if let Err(e) = check_selector(&lit_str.value()) {
-                    return Err(input.error(e.message()));
-                }
-
+                check_selector(&lit_str.value())?;
                 Ok(Attr::Selector(lit_str))
             }
             ATTR_ATTR | SELECTOR_ATTR if input.peek(Token![=]) => {
@@ -106,23 +101,18 @@ impl parse::Parse for Attr {
 }
 
 impl TryFrom<Vec<Attribute>> for AttrMeta {
-    type Error = Diagnostic;
+    type Error = Error;
     fn try_from(attrs: Vec<Attribute>) -> Result<Self> {
         let mut html_attrs = attrs
             .into_iter()
             .filter(|attr| attr.path.is_ident(HTML_ATTR));
 
         match (html_attrs.next(), html_attrs.next()) {
-            (Some(ref only), None) if !only.tokens.is_empty() => only.parse_args().map_err(|e| {
-                Diagnostic::new(
-                    Level::Error,
-                    format!("unable to parse `html` attributes: {}", e.to_string()),
-                )
-            }),
+            (Some(ref only), None) if !only.tokens.is_empty() => only.parse_args(),
             // Either no attribute at all or attribute with empty contents
             (_, None) => Ok(Default::default()),
-            (_, _) => Err(Diagnostic::new(
-                Level::Error,
+            (_, _) => Err(Error::new(
+                Span::call_site(),
                 "there cannot be multiple `html` attributes",
             )),
         }
@@ -131,8 +121,8 @@ impl TryFrom<Vec<Attribute>> for AttrMeta {
 
 fn check_selector(selector: &str) -> Result<()> {
     Selector::parse(selector).map(|_| ()).map_err(|err| {
-        Diagnostic::new(
-            Level::Error,
+        Error::new(
+            Span::call_site(),
             format!("invalid css selector `{}`: {:?}", selector, err),
         )
     })
@@ -234,7 +224,7 @@ mod tests {
         )
         .unwrap_err();
 
-        assert!(e.message().contains("invalid css"));
+        assert!(e.to_string().contains("invalid css"));
     }
 
     #[test]

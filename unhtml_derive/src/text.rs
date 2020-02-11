@@ -1,11 +1,10 @@
-use crate::parse::try_parse;
-use crate::Result;
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::ItemStruct;
+use syn::parse_macro_input::parse;
+use syn::{ItemStruct, Result};
 
 pub fn derive(input: proc_macro::TokenStream) -> Result<TokenStream> {
-    let target = try_parse::<ItemStruct>(input)?;
+    let target = parse::<ItemStruct>(input)?;
     let (impl_generics, ty_generics, where_clause) = target.generics.split_for_impl();
     let struct_name = target.ident.clone();
     Ok(quote!(

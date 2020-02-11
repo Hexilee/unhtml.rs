@@ -1,5 +1,3 @@
-#![feature(proc_macro_diagnostic)]
-
 //! ## unhtml_derive
 //!
 //! [![Build status](https://img.shields.io/travis/Hexilee/unhtml.rs/master.svg)](https://travis-ci.org/Hexilee/unhtml.rs)
@@ -703,30 +701,20 @@ extern crate proc_macro;
 
 mod attr_meta;
 mod html;
-mod parse;
 mod text;
 
-use proc_macro::{Diagnostic, TokenStream};
-use quote::quote;
+use proc_macro::TokenStream;
 
 #[proc_macro_derive(FromHtml, attributes(html))]
 pub fn html_derive(input: TokenStream) -> TokenStream {
     html::derive(input)
-        .unwrap_or_else(|err| {
-            err.emit();
-            quote!()
-        })
+        .unwrap_or_else(|err| err.to_compile_error())
         .into()
 }
 
 #[proc_macro_derive(FromText)]
 pub fn text_derive(input: TokenStream) -> TokenStream {
     text::derive(input)
-        .unwrap_or_else(|err| {
-            err.emit();
-            quote!()
-        })
+        .unwrap_or_else(|err| err.to_compile_error())
         .into()
 }
-
-type Result<T> = std::result::Result<T, Diagnostic>;

@@ -1,10 +1,8 @@
 use super::attr_meta::{AttrMeta, DefaultAttr};
-use super::parse::try_parse;
-use crate::Result;
 use proc_macro2::TokenStream;
 use quote::quote;
 use std::convert::TryInto;
-use syn::{Attribute, Fields, ItemStruct};
+use syn::{parse_macro_input::parse, Attribute, Fields, ItemStruct, Result};
 
 const ATTR_INNER_TEXT: &str = "inner";
 
@@ -23,7 +21,7 @@ fn import() -> TokenStream {
 // TODO: confirm no lifetime in generics
 pub fn derive(input: proc_macro::TokenStream) -> Result<TokenStream> {
     use_idents!(_select);
-    let target = try_parse::<ItemStruct>(input)?;
+    let target = parse::<ItemStruct>(input)?;
     let (impl_generics, ty_generics, where_clause) = target.generics.split_for_impl();
     let struct_name = target.ident.clone();
     let attr_meta: AttrMeta = target.attrs.try_into()?;
@@ -90,6 +88,8 @@ fn gen_field_value(attr: Vec<Attribute>) -> Result<TokenStream> {
         DefaultAttr::DefaultImpl => quote!(
             #result.unwrap_or_else(|_| ::core::default::Default::default())
         ),
-        DefaultAttr::Value(expr) => quote!(#result.unwrap_or_else(|_| ::core::convert::From::from(#expr))),
+        DefaultAttr::Value(expr) => {
+            quote!(#result.unwrap_or_else(|_| ::core::convert::From::from(#expr)))
+        }
     })
 }
