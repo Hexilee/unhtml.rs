@@ -13,7 +13,7 @@ const DEFAULT_ATTR: &str = "default";
 pub enum DefaultAttr {
     None,
     DefaultImpl,
-    Value(syn::Expr),
+    Value(Box<syn::Expr>),
 }
 
 #[derive(Debug, Eq, PartialEq)]
@@ -65,7 +65,7 @@ impl parse::Parse for Attr {
                 let _: Token![=] = input.parse()?;
                 let expr: Expr = input.parse()?;
 
-                Ok(Attr::Default(DefaultAttr::Value(expr)))
+                Ok(Attr::Default(DefaultAttr::Value(Box::new(expr))))
             }
             // default
             DEFAULT_ATTR => Ok(Attr::Default(DefaultAttr::DefaultImpl)),
