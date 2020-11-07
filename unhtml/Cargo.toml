@@ -1,6 +1,6 @@
 [package]
 name = "unhtml"
-version = "0.7.5"
+version = "0.8.0"
 authors = ["Hexilee <hexileee@gmail.com>"]
 edition = "2018"
 license = "MIT"
@@ -14,7 +14,7 @@ documentation = "https://docs.rs/unhtml"
 [dependencies]
 scraper = { version = "0.12", default-features = false }
 derive_more = "0.99"
-unhtml_derive = { path = "../unhtml_derive", version = "0.7", optional = true }
+unhtml_derive = { path = "../unhtml_derive", version = "0.8", optional = true }
 
 [features]
 derive = ["unhtml_derive"]

@@ -1,6 +1,6 @@
 [package]
 name = "unhtml-test"
-version = "0.7.1"
+version = "0.8.0"
 authors = ["Hexilee <hexileee@gmail.com>"]
 edition = "2018"
 description = "A magic parser for html"
@@ -13,4 +13,4 @@ members = [
 ]
 
 [dependencies]
-unhtml = { path = "unhtml", version = "0.7", features = ["derive"]}
+unhtml = { path = "unhtml", version = "0.8", features = ["derive"]}
