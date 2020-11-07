@@ -45,7 +45,7 @@ jobs:
           echo "package dir:"
           ls
           cargo package
-          echo "We will publish:" $PACKAGE_VERSION
+          echo "Will be published:" $PACKAGE_VERSION
           echo "This is current latest:" $PUBLISHED_VERSION
           echo "post package dir:"
           cd ${{ matrix.publishPath }}
