@@ -1,4 +1,4 @@
-HTML deserializer for rust
+A magic html parser.
 
 [![Stable Test](https://github.com/Hexilee/unhtml.rs/workflows/Stable%20Test/badge.svg)](https://github.com/Hexilee/unhtml.rs/actions)
 [![Rust Docs](https://docs.rs/unhtml/badge.svg)](https://docs.rs/unhtml)
