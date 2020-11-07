@@ -1,16 +1,10 @@
 HTML deserializer for rust
 
-[![Build status](https://img.shields.io/travis/Hexilee/unhtml.rs/master.svg)](https://travis-ci.org/Hexilee/unhtml.rs)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Hexilee/unhtml.rs/blob/master/LICENSE)
-
-### `unhtml`
-[![Crate version](https://img.shields.io/crates/v/unhtml.svg)](https://crates.io/crates/unhtml)
+[![Stable Test](https://github.com/Hexilee/unhtml.rs/workflows/Stable%20Test/badge.svg)](https://github.com/Hexilee/unhtml.rs/actions)
 [![Rust Docs](https://docs.rs/unhtml/badge.svg)](https://docs.rs/unhtml)
-
-### `unhtml_derive`
-[![Crate version](https://img.shields.io/crates/v/unhtml_derive.svg)](https://crates.io/crates/unhtml_derive)
-[![Rust Docs](https://docs.rs/unhtml_derive/badge.svg)](https://docs.rs/unhtml_derive)
-
+[![Crate version](https://img.shields.io/crates/v/unhtml.svg)](https://crates.io/crates/unhtml)
+[![Download](https://img.shields.io/crates/d/unhtml.svg)](https://crates.io/crates/unhtml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/Hexilee/unhtml.rs/blob/master/LICENSE)
 ----------------
 
 Table of Contents

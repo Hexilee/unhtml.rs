@@ -1,0 +1,83 @@
+name: Release
+on:
+  push:
+    branches:
+      - release
+    paths:
+      - '**/Cargo.toml'
+      - '.github/workflows/release.yml'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        package:
+          - name: unhtml_derive
+            registryName: unhtml_derive
+            path: unhtml_derive
+            publishPath: /target/package
+          - name: unhtml
+            registryName: unhtml
+            path: unhtml
+            publishPath: /target/package
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: get version
+        working-directory: ${{ matrix.package.path }}
+        run: echo ::set-env name=PACKAGE_VERSION::$(sed -nE 's/^\s*version = "(.*?)"/\1/p' Cargo.toml)
+      - name: check published version
+        run: echo ::set-env name=PUBLISHED_VERSION::$(cargo search ${{ matrix.package.registryName }} --limit 1 | sed -nE 's/^[^"]*"//; s/".*//1p' -)
+      - name: cargo login
+        if: env.PACKAGE_VERSION != env.PUBLISHED_VERSION
+        run: cargo login ${{ secrets.CRATE_TOKEN }}
+      - name: cargo package
+        if: env.PACKAGE_VERSION != env.PUBLISHED_VERSION
+        working-directory: ${{ matrix.package.path }}
+        run: |
+          echo "package dir:"
+          ls
+          cargo package
+          echo "We will publish:" $PACKAGE_VERSION
+          echo "This is current latest:" $PUBLISHED_VERSION
+          echo "post package dir:"
+          cd ${{ matrix.publishPath }}
+          ls
+      - name: Publish ${{ matrix.package.name }}
+        if: env.PACKAGE_VERSION != env.PUBLISHED_VERSION
+        working-directory: ${{ matrix.package.path }}
+        run: |
+          echo "# Cargo Publish" | tee -a ${{runner.workspace }}/notes.md
+          echo "\`\`\`" >> ${{runner.workspace }}/notes.md
+          cargo publish --no-verify 2>&1 | tee -a ${{runner.workspace }}/notes.md
+          echo "\`\`\`" >> ${{runner.workspace }}/notes.md
+      - name: Create Release
+        id: create_crate_release
+        if: env.PACKAGE_VERSION != env.PUBLISHED_VERSION
+        uses: jbolda/create-release@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ matrix.package.name }}-v${{ env.PACKAGE_VERSION }}
+          release_name: "Release ${{ matrix.package.name }} v${{ env.PACKAGE_VERSION }} [crates.io]"
+          bodyFromFile: ./../notes.md
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset
+        if: env.PACKAGE_VERSION != env.PUBLISHED_VERSION
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_crate_release.outputs.upload_url }}
+          asset_path: ./${{ matrix.package.publishPath }}/${{ matrix.package.registryName }}-${{ env.PACKAGE_VERSION }}.crate
+          asset_name: ${{ matrix.package.registryName }}-${{ env.PACKAGE_VERSION }}.crate
+          asset_content_type: application/x-gtar
