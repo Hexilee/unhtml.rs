@@ -28,10 +28,6 @@ jobs:
           - stable
           - 1.20.0
     steps:
-      - name: Install libsqlite3-dev
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install libsqlite3-dev
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
